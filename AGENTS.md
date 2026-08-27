@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Scope
-This is the primary reference for AI coding agents (Pi, Claude, Cursor, Aider, etc.) working on the Basjoo repository. **Always read this file, CLAUDE.md, and relevant sections of README.md before starting any task.** Implementation plans are in `docs/plans/`; capability specs are in `docs/specs/`.
+This is the primary reference for AI coding agents (Pi, Claude, Cursor, Aider, etc.) working on the Aurelia AI repository. **Always read this file, CLAUDE.md, and relevant sections of README.md before starting any task.** Implementation plans are in `docs/plans/`; capability specs are in `docs/specs/`.
 
 ## Project overview
 Docker-oriented AI customer support platform:
@@ -14,7 +14,7 @@ All LLM calls to external providers; embeddings via self-KB (Jina/SiliconFlow/Op
 ## Repository layout
 - `backend/` — FastAPI app, `services/` (logic), `api/` (thin routers), `models.py`, `tests/`.
 - `frontend-nextjs/` — `app/` (routes), `src/views/`, `src/components/`, `src/hooks/`, `src/services/api.ts`.
-- `widget/` — `src/BasjooWidget.tsx`, esbuild bundles, example/.
+- `widget/` — `src/BasjooWidget.tsx` (class name preserved for backward compatibility), esbuild bundles, example/.
 - `scrapling-service/` — standalone stealth scraper (curl_cffi + readability).
 - `docker-compose.yml` — dev/prod profiles; `nginx/`.
 - `tests/e2e/` — Playwright specs.
@@ -96,7 +96,7 @@ All LLM calls to external providers; embeddings via self-KB (Jina/SiliconFlow/Op
 - New `useAgentKbStatus` hook for first-time KB flow.
 
 ### Widget
-- Build produces `dist/basjoo-widget.js` (ESM) and `.min.js` (IIFE); always run `npm run sync-widget` after changes affecting embeds.
+- Build produces `dist/aurelia-widget.js` (ESM) and `.min.js` (IIFE); always run `npm run sync-widget` after changes affecting embeds.
 - Maintains backward compatibility for existing script embeds (agent ID persistence).
 
 ## Safety and operational notes

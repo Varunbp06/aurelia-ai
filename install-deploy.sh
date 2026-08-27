@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-BASJOO_REPO_URL=${BASJOO_REPO_URL:-https://github.com/haoyiyin/basjoo}
+AURELIA_REPO_URL=${AURELIA_REPO_URL:-https://github.com/Varunbp06/aurelia-ai}
 BASJOO_BRANCH=${BASJOO_BRANCH:-main}
 BASJOO_FORCE_CLEAN=${BASJOO_FORCE_CLEAN:-1}
 INSTALL_DOCKER_URL=${INSTALL_DOCKER_URL:-https://get.docker.com}
@@ -45,10 +45,8 @@ run_root() {
 
 if [ "$IS_REPO_SCRIPT" -eq 1 ]; then
 	DEFAULT_BASJOO_DIR=$SCRIPT_DIR
-elif [ "$(id -u)" -eq 0 ]; then
-	DEFAULT_BASJOO_DIR=/opt/basjoo
-else
-	DEFAULT_BASJOO_DIR=$HOME/basjoo
+elif [ "$(id -u)" -eq 0 ]; then    DEFAULT_AURELIA_DIR=/opt/aurelia-ai
+else    DEFAULT_AURELIA_DIR=$HOME/aurelia-ai
 fi
 
 BASJOO_DIR=${BASJOO_DIR:-$DEFAULT_BASJOO_DIR}
@@ -283,28 +281,22 @@ show_failure_logs() {
 }
 
 verify_deployment() {
-	log "Waiting for container health checks"
-	wait_for_container basjoo-redis healthy 120 || {
+	log "Waiting for container health checks"    wait_for_container aurelia-redis healthy 120 || {
 		show_failure_logs
 		fail "Redis did not become healthy in time."
-	}
-	wait_for_container basjoo-postgres healthy 120 || {
+	}    wait_for_container aurelia-postgres healthy 120 || {
 		show_failure_logs
 		fail "PostgreSQL did not become healthy in time."
-	}
-	wait_for_container basjoo-qdrant healthy 120 || {
+	}    wait_for_container aurelia-qdrant healthy 120 || {
 		show_failure_logs
 		fail "Qdrant did not become healthy in time."
-	}
-	wait_for_container basjoo-backend healthy 180 || {
+	}    wait_for_container aurelia-backend healthy 180 || {
 		show_failure_logs
 		fail "Backend did not become healthy in time."
-	}
-	wait_for_container basjoo-frontend healthy 180 || {
+	}    wait_for_container aurelia-frontend healthy 180 || {
 		show_failure_logs
 		fail "Frontend did not become healthy in time."
-	}
-	wait_for_container basjoo-nginx running 120 || {
+	}    wait_for_container aurelia-nginx running 120 || {
 		show_failure_logs
 		fail "nginx did not enter the running state in time."
 	}
@@ -352,8 +344,7 @@ print_summary() {
 	fi
 
 	printf '%s\n' ''
-	printf '%s\n' '=========================================='
-	printf '%s\n' '   Basjoo deployment is ready!           '
+	printf '%s\n' '=========================================='    printf '%s\n' '   Aurelia AI deployment is ready!           '
 	printf '%s\n' '=========================================='
 	printf '%s\n' ''
 	printf 'Project directory: %s\n' "$BASJOO_DIR"
@@ -388,9 +379,7 @@ print_summary() {
 
 deploy_repo() {
 	[ -f "$BASJOO_DIR/deploy.sh" ] || fail "deploy.sh was not found in $BASJOO_DIR."
-	[ -f "$BASJOO_DIR/docker-compose.yml" ] || fail "docker-compose.yml was not found in $BASJOO_DIR."
-
-	log "Running Basjoo production deployment"
+	[ -f "$BASJOO_DIR/docker-compose.yml" ] || fail "docker-compose.yml was not found in $BASJOO_DIR."    log "Running Aurelia AI production deployment"
 	BASJOO_DOCKER_BIN="$DOCKER_BIN" sh "$BASJOO_DIR/deploy.sh"
 }
 

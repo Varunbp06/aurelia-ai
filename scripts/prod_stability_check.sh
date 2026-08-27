@@ -8,7 +8,7 @@ BASE_URL="${BASE_URL:-http://127.0.0.1}"
 ADMIN_EMAIL="${AUTORESEARCH_ADMIN_EMAIL:-autoresearch-admin@example.com}"
 ADMIN_PASSWORD="${AUTORESEARCH_ADMIN_PASSWORD:-AutoresearchPass123!}"
 ADMIN_NAME="${AUTORESEARCH_ADMIN_NAME:-Autoresearch Admin}"
-TMP_DIR="${TMPDIR:-/tmp}/basjoo-prod-stability"
+TMP_DIR="${TMPDIR:-/tmp}/aurelia-prod-stability"
 COOKIE_JAR="$TMP_DIR/cookies.txt"
 HEADERS_FILE="$TMP_DIR/headers.txt"
 BODY_FILE="$TMP_DIR/body.json"
@@ -218,7 +218,7 @@ log_step "Importing QA test data"
 qa_payload=$(python3 - <<'PY'
 import json
 items = [
-  {"question": "What is Basjoo autoresearch?", "answer": "A production stability validation run."},
+  {"question": "What is Aurelia AI autoresearch?", "answer": "A production stability validation run."},
   {"question": "How should widget users be treated?", "answer": "They should receive stable responses in production."}
 ]
 print(json.dumps({"format": "json", "content": json.dumps(items), "overwrite": False}))
@@ -320,7 +320,7 @@ import json, sys
 print(json.dumps({
   "agent_id": sys.argv[1],
   "session_id": "autoresearch-blocking-session",
-  "message": "Please answer briefly: what is Basjoo autoresearch?"
+  "message": "Please answer briefly: what is Aurelia AI autoresearch?"
 }))
 PY
 )

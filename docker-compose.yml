@@ -1,5 +1,5 @@
 # ============================================
-# Basjoo Docker Compose 配置
+# Aurelia AI Docker Compose Configuration
 # 使用 Profile 区分环境：
 #   - 生产: docker compose --profile prod up -d
 #   - 开发: docker compose --profile dev up -d

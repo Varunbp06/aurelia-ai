@@ -38,7 +38,7 @@ fi
 printf '%s\n' '==> Preparing .env for zero-config deployment'
 BASJOO_PROJECT_ROOT="$SCRIPT_DIR" python3 "$SCRIPT_DIR/backend/env_bootstrap.py"
 
-printf '%s\n' '==> Starting Basjoo production stack'
+printf '%s\n' '==> Starting Aurelia AI production stack'
 $DOCKER_BIN compose --project-directory "$SCRIPT_DIR" --profile prod up -d --build
 
 printf '%s\n' ''

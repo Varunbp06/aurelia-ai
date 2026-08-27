@@ -131,13 +131,13 @@ async def init_db():
         from models import Workspace, Agent, WorkspaceQuota
 
         result = await session.execute(
-            select(Workspace).where(Workspace.owner_email == "admin@aurelia.com")
+            select(Workspace).where(Workspace.owner_email == "admin@aurelia.ai")
         )
         existing_workspace = result.scalar_one_or_none()
 
         if not existing_workspace:
             default_workspace = Workspace(
-                name="Default Workspace", owner_email="admin@aurelia.com"
+                name="Default Workspace", owner_email="admin@aurelia.ai"
             )
             session.add(default_workspace)
             await session.flush()

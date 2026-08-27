@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### One-command production install (Ubuntu/Debian)
 
-- Blank server deploy: `curl -fsSL https://raw.githubusercontent.com/haoyiyin/basjoo/main/install-deploy.sh | sudo sh`
+- Blank server deploy: `curl -fsSL https://raw.githubusercontent.com/Varunbp06/aurelia-ai/main/install-deploy.sh | sudo sh`
 - Local repo deploy: `sudo sh install-deploy.sh`
 - Supported systems: Ubuntu and Debian. The script auto-installs Docker/Compose, clones/syncs the repo, and deploys the production profile.
 - Persistent volumes are preserved; `install-deploy.sh` does not remove `backend-data`, `redis-data`, or `postgres-data`.
@@ -44,8 +44,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Install deps: `npm install`
 - Dev bundle/example server: `npm run dev`
 - Build distributables: `npm run build` (typecheck + dev + prod bundles)
-- Dev-only build: `npm run build:dev` (unminified ESM, `dist/basjoo-widget.js`)
-- Prod-only build: `npm run build:prod` (minified IIFE, `dist/basjoo-widget.min.js`)
+- Dev-only build: `npm run build:dev` (unminified ESM, `dist/aurelia-widget.js`)
+- Prod-only build: `npm run build:prod` (minified IIFE, `dist/aurelia-widget.min.js`)
 - Type-check: `npm run typecheck`
 - Run tests: `npm run test`
 
@@ -105,9 +105,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Widget structure
 
-- `widget/src/BasjooWidget.tsx` is a self-contained embeddable widget implementation bundled with esbuild.
+- `widget/src/BasjooWidget.tsx` is the self-contained embeddable widget implementation (class name preserved for backward compatibility).
 - The widget auto-detects `apiBase`, streams chat via SSE, persists visitor/session IDs in `localStorage`, and polls for human-takeover replies.
-- Backend `/sdk.js`, `/basjoo-logo.png`, and widget demo routes are served directly from `backend/main.py`.
+- Backend `/sdk.js`, `/aurelia-logo.png`, and widget demo routes are served directly from `backend/main.py`.
 
 ### Deployment notes
 
@@ -121,7 +121,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Testing notes
 
-- Backend tests use `backend/tests/conftest.py` to force `BASJOO_TEST_MODE=1`, create isolated SQLite DBs under `backend/.pytest_dbs/`, and monkeypatch LLM integrations for most API tests.
+- Backend tests use `backend/tests/conftest.py` to force `AURELIA_TEST_MODE=1`, create isolated SQLite DBs under `backend/.pytest_dbs/`, and monkeypatch LLM integrations for most API tests.
 - Use the existing `client` fixture for authenticated admin API tests and `public_client` for unauthenticated/public-route coverage instead of building ad-hoc `AsyncClient` fixtures in individual test files.
 - To test actual self-KB integration, run against the Docker dev stack with Qdrant.
 - Run tests locally via venv (not system python): `source venv/bin/activate && python3 -m pytest tests/ --ignore=tests/integration/`. The `--ignore` is needed because `tests/integration/test_service_clients.py` imports an unavailable module.
