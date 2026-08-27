@@ -101,21 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				localStorage.removeItem(ADMIN_STORAGE_KEY);
 			}
 		}
-		// Direct-login fallback: auto-login with default admin so dashboard is immediately usable without manual login.
-		// This bypasses the login page Hydration gate the user is hitting.
-		fetch(`${API_BASE_URL}/api/admin/login`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email: "admin@aurelia.ai", password: "Aurelia123!" }),
-		})
-			.then(async (res) => {
-				if (res.ok) {
-					const data = await res.json();
-					persistSession(data);
-				}
-			})
-			.catch(() => {})
-			.finally(() => setIsLoading(false));
+		// No saved session — user must log in via the login page.
+		setIsLoading(false);
 	}, [persistSession]);
 
 	// Refresh admin role from the backend on mount so that role changes
