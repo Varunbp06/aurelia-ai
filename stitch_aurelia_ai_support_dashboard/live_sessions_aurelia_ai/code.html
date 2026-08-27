@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aurelia AI - Sessions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#33302c",
+                        "secondary-container": "#ff6b6b",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#e0d9d2",
+                        "on-secondary-container": "#6d0010",
+                        "on-surface-variant": "#464555",
+                        "on-primary-fixed": "#07006c",
+                        "on-primary-fixed-variant": "#2e2bc2",
+                        "tertiary-fixed": "#89f5e7",
+                        "surface-tint": "#4849da",
+                        "surface-container-low": "#faf2eb",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1e1b17",
+                        "surface-container-highest": "#e8e1db",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#ffdad8",
+                        "surface": "#fff8f2",
+                        "primary-container": "#5d5fef",
+                        "tertiary": "#00655c",
+                        "outline-variant": "#c7c4d7",
+                        "surface-variant": "#e8e1db",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-tertiary-fixed": "#00201d",
+                        "secondary-fixed-dim": "#ffb3b0",
+                        "background": "#fff8f2",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#e1e0ff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#c1c1ff",
+                        "inverse-primary": "#c1c1ff",
+                        "tertiary-container": "#008075",
+                        "primary": "#4343d5",
+                        "on-secondary-fixed-variant": "#8c1520",
+                        "on-surface": "#1e1b17",
+                        "on-primary-container": "#faf7ff",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#fff8f2",
+                        "secondary": "#ae2f34",
+                        "outline": "#767586",
+                        "on-tertiary-container": "#ddfff9",
+                        "inverse-on-surface": "#f7efe9",
+                        "surface-container": "#f4ede6",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#410006",
+                        "surface-container-high": "#eee7e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "lg": "24px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for the chat area */
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background-color: #e0d9d2;
+            border-radius: 10px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-full font-body-md text-body-md overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-full md:w-[calc(100%-260px)] h-16 bg-surface z-40 border-b border-outline-variant flex justify-between items-center px-lg flat no shadows">
+<div class="flex items-center gap-4">
+<h1 class="md:hidden font-headline-md text-headline-md font-bold text-primary">Aurelia AI</h1>
+<nav class="hidden md:flex gap-6 h-full items-center">
+<a class="text-primary font-bold border-b-2 border-primary h-full flex items-center" href="#">Workspace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Invite User
+            </button>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="p-2 hover:text-primary transition-colors cursor-pointer active:opacity-80 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:text-primary transition-colors cursor-pointer active:opacity-80 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img alt="Admin Profile Avatar" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional woman with a warm smile, wearing modern corporate attire. Soft, warm lighting illuminates her face, conveying approachability and competence. The background is a slightly blurred, high-key modern office space, fitting a refined corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARrJtYbCjhZHd1yUYhIYCSj8XIn2X52c3CXRMEJsprlnRxF_l7xz_jR2dbojDOW6B8DjUEALrbeBRPcVpaZS7lTnBrFQbflO2HS74YkVti9ZDHHt8Gbqb0plU3RlLyT1Fo3Y31dBeM1ehIaz3KN4ifAxN1F-XwQ419EPVuDzW71735D_xn3Rhzxp_0clhrXuxyfzkJA04nFvgj_SB-cFdrW2Qd2-ykG432PGgqt2ZqIc4_fQmhcBNL"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[260px] bg-surface z-50 border-r border-outline-variant hidden md:flex flex-col py-6 flat no shadows">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined font-bold">auto_awesome</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Aurelia AI</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Admin Console</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full py-2 px-4 bg-surface-container-highest text-on-surface rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 border border-outline-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Agent
+            </button>
+</div>
+<nav class="flex-1 px-2 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="science">science</span>
+                Playground
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+                Agents
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+                Knowledge
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-primary bg-primary/5 border-l-4 border-primary hover:bg-surface-container transition-colors duration-200 rounded-r-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+                Sessions
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Help Center
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Log Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="pt-16 md:ml-[260px] h-full flex flex-col md:flex-row bg-surface-container-lowest">
+<!-- Sessions List Pane -->
+<section class="w-full md:w-1/3 lg:w-[380px] h-full border-r border-outline-variant flex flex-col bg-surface-container-lowest">
+<!-- List Header -->
+<div class="p-4 border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-10">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-headline-md text-headline-md text-on-background">Active Sessions</h2>
+<span class="bg-surface-container px-2 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">24 Online</span>
+</div>
+<!-- Search & Filter -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-background placeholder:text-outline" placeholder="Search sessions..." type="text"/>
+</div>
+<div class="flex gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
+<button class="whitespace-nowrap px-3 py-1 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md border border-transparent">All</button>
+<button class="whitespace-nowrap px-3 py-1 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant hover:bg-surface-container transition-colors">AI Handling</button>
+<button class="whitespace-nowrap px-3 py-1 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant hover:bg-surface-container transition-colors">Needs Human</button>
+</div>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto chat-scroll p-2 space-y-1 bg-surface-container-lowest">
+<!-- Active Session Item -->
+<div class="p-3 rounded-lg bg-primary/5 border border-primary/20 cursor-pointer flex gap-3 relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"></div>
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant flex-shrink-0">
+<img alt="Visitor Avatar" class="w-full h-full object-cover" data-alt="A portrait of a male customer looking slightly confused but calm, lit by a soft desk lamp in a home office setting. The mood is relaxed, highlighting the modern, clean aesthetic of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClPGhL59bkq4icQ8zjtZnqVl7dzbUq7ctFVr_Bt5khmS0k-nPA0Gu17FmHQNrv8OIhwz6wKSMWt4FSupkX0K_24rWA7q78cqe4wG4rZcoOPtgGIib6RvC1f1mklZ9ZOmxvxd3p94MyJnMyke78Qc9rkvGlykRaJIMZ9JuhFGCc6mkDqSOyTdB6V99b998lU1njLOaL2Qz8wVGt4O1N81Y9h6aPUstEt4q0C_jOobBQ_9PzaF6wMzvi"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-label-md text-label-md font-bold text-on-background truncate">Michael Chen</h3>
+<span class="text-[10px] text-on-surface-variant">Just now</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">I'm having trouble connecting my new device to the Wi-Fi.</p>
+<div class="mt-2 flex gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
+                                AI-Handled
+                            </span>
+</div>
+</div>
+</div>
+<!-- Session Item 2 -->
+<div class="p-3 rounded-lg hover:bg-surface-container cursor-pointer transition-colors flex gap-3 border border-transparent">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant flex-shrink-0 flex items-center justify-center text-on-surface-variant font-headline-md text-headline-md">
+                            S
+                        </div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-label-md text-label-md font-bold text-on-background truncate">Sarah Jenkins</h3>
+<span class="text-[10px] text-on-surface-variant">2m ago</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate font-medium text-on-background">Can I speak to a human please?</p>
+<div class="mt-2 flex gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-700">
+                                Human-Takeover
+                            </span>
+</div>
+</div>
+</div>
+<!-- Session Item 3 -->
+<div class="p-3 rounded-lg hover:bg-surface-container cursor-pointer transition-colors flex gap-3 border border-transparent opacity-75">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-outline-variant flex-shrink-0">
+<img alt="Visitor Avatar" class="w-full h-full object-cover" data-alt="A portrait of an elderly woman looking content, in a well-lit living room with soft natural light streaming through a window. The overall tone is warm and reassuring, fitting the approachable corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgKLxiw9xgKLEwBLi9iWOVZjJiPCQQdQ0KIrIssOfDWoDIWLwbsQYiC2UsTwgy2FQS2Ap-vp1o2ZzI6tea36RjuhkADXgHHR53lD38_8BFu_b9mUX57qVhzqdeA03Kh8GvApE7cghEH6Zs3I4ZnAxY2qeXoa5rbXZKtuyGqwkv_jG95CAsGLqoZS2rGTQ6jnVu1kAx4qgS64W5GJJU4Rpxk3EhZg_c0GVShsD_PP_7kDVR0IDZoovx"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-label-md text-label-md text-on-background truncate">Emma Thompson</h3>
+<span class="text-[10px] text-on-surface-variant">1h ago</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm truncate">Thank you, that solved my issue perfectly!</p>
+<div class="mt-2 flex gap-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-surface-container-highest text-on-surface-variant">
+                                Closed
+                            </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Conversation Detail Pane -->
+<section class="flex-1 flex flex-col bg-surface-container-lowest h-full relative">
+<!-- Detail Header -->
+<div class="h-16 px-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest z-10 flex-shrink-0">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img alt="Visitor Avatar" class="w-full h-full object-cover" data-alt="A portrait of a male customer looking slightly confused but calm, lit by a soft desk lamp in a home office setting. The mood is relaxed, highlighting the modern, clean aesthetic of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9nYsItrKAxkitkq6-APv97DGmT7aPkHVjqQaaYo7Nm5_IKR_Fci3BdKZw-nX1n8aN5P1GUKSXWX1QK_uwXYrB2kCC0TQiUlAL_DdCFseT5M5nu47_EEsXFjfpJf6Mer3Idgp_QKa4eRB6SUGuk2onQYGLd_XAxhQCAtbg2IsJ72BqgFV-jR27nYgJK3cLWvP70AU66HCeptDTXZX3waa7uDfqUtKnikGu1HEdQQI8GKt0bQWpj6NS"/>
+</div>
+<div>
+<h2 class="font-label-md text-label-md font-bold text-on-background">Michael Chen</h2>
+<p class="text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active on Homepage
+                        </p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+<button class="px-4 py-2 bg-surface text-on-surface border border-outline-variant rounded-lg font-label-md text-label-md hover:bg-surface-container transition-all flex items-center gap-2 shadow-sm" id="takeover-btn">
+<span class="material-symbols-outlined text-[18px]">front_hand</span>
+                        Take Over
+                    </button>
+</div>
+</div>
+<!-- Takeover Banner (Hidden by default) -->
+<div class="hidden bg-primary/10 border-b border-primary/20 px-6 py-2 flex items-center justify-between fade-in" id="takeover-banner">
+<div class="flex items-center gap-2 text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                    You are now controlling this session. The AI agent is paused.
+                </div>
+<button class="text-xs font-medium text-primary hover:underline" id="resume-ai-btn">Resume AI</button>
+</div>
+<!-- Chat Area & Sidebar Wrapper -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Chat History -->
+<div class="flex-1 flex flex-col bg-surface/50">
+<div class="flex-1 overflow-y-auto chat-scroll p-6 space-y-6">
+<!-- Date Divider -->
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-surface-container rounded-full text-[11px] font-medium text-on-surface-variant border border-outline-variant/50">Today, 10:42 AM</span>
+</div>
+<!-- System Message -->
+<div class="flex justify-center">
+<span class="text-xs text-on-surface-variant text-center max-w-md">Visitor started a chat from the Support Center. Aurelia AI agent 'TechSupport-v2' assigned.</span>
+</div>
+<!-- Visitor Message -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant flex-shrink-0 mt-auto">
+<img alt="Visitor Avatar" class="w-full h-full object-cover" data-alt="A portrait of a male customer looking slightly confused but calm, lit by a soft desk lamp in a home office setting. The mood is relaxed, highlighting the modern, clean aesthetic of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnNx2UyaB8AnyJTlZNV6rrQQm9Iz4WKymO0K2VGyyo_q8b3fZD4YcM-m6imPVONZbYX64mpEuDN4r1GVAhw7yM0GV0-p2sjuPXgH5O3wmibgD1fGF-HsDecWqRotS9mYysLXF24q-cOKu_JJhRxdJ5Ue_YpZ0VrZWV74K3yhW7LKtWgZ6ExQS50BRHNpolTO4TB7H3wZl1Nnnd4wLkZ1cZ3xI3c1Fzm2Ros5HN9XCgu2xYJljLU6Nk"/>
+</div>
+<div class="flex flex-col gap-1 max-w-[70%]">
+<span class="text-[11px] text-on-surface-variant ml-1">Michael Chen • 10:43 AM</span>
+<div class="bg-surface border border-outline-variant rounded-2xl rounded-bl-sm p-3 shadow-sm">
+<p class="font-body-md text-body-md text-on-background">Hi, I'm having trouble connecting my new smart plug to the Wi-Fi. It keeps flashing red.</p>
+</div>
+</div>
+</div>
+<!-- AI Message -->
+<div class="flex gap-4 flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20 flex-shrink-0 mt-auto shadow-sm">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 items-end max-w-[70%]">
+<span class="text-[11px] text-on-surface-variant mr-1">Aurelia AI • 10:43 AM</span>
+<div class="bg-primary text-on-primary rounded-2xl rounded-br-sm p-3 shadow-sm">
+<p class="font-body-md text-body-md">Hello Michael! I can certainly help you with your smart plug. A flashing red light usually indicates it's in setup mode but hasn't received network credentials yet.</p>
+<p class="font-body-md text-body-md mt-2">Are you using the companion app on a 2.4GHz Wi-Fi network? Most smart plugs don't support 5GHz networks.</p>
+</div>
+<div class="flex gap-2 mt-1">
+<span class="text-[10px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant border border-outline-variant/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">check_circle</span> Confidence: High
+                                    </span>
+<span class="text-[10px] bg-surface-container px-2 py-0.5 rounded text-on-surface-variant border border-outline-variant/30">
+                                        Knowledge Base: Art.#402
+                                    </span>
+</div>
+</div>
+</div>
+<!-- Visitor Message -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant flex-shrink-0 mt-auto">
+<img alt="Visitor Avatar" class="w-full h-full object-cover" data-alt="A portrait of a male customer looking slightly confused but calm, lit by a soft desk lamp in a home office setting. The mood is relaxed, highlighting the modern, clean aesthetic of the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWlFg9V6CwNUDuhzJvuMUBV-scCOR3HC_giYj_Y6PYV5YjnQ1fsRFI4PwO5Rqazbact3M--e6twiJeTulaAIXkfI_z3Lc9SUV5EcY-7o5cjs5QP6_6gzJqu-FBbR4jtqxoSwm3yPlKSuDFWz_sDK5bQkTSSFu6Njdw027Y31Xv7svUNhi2KfS46UQZqd-OM5TG6KMlWUQe1j7oRGtsFgXlk_ytU1u3gEOea3uSMtI3anDUKT6IOPC7"/>
+</div>
+<div class="flex flex-col gap-1 max-w-[70%]">
+<span class="text-[11px] text-on-surface-variant ml-1">Michael Chen • 10:45 AM</span>
+<div class="bg-surface border border-outline-variant rounded-2xl rounded-bl-sm p-3 shadow-sm">
+<p class="font-body-md text-body-md text-on-background">Ah, I think my router combines both bands into one name. How do I force it to use 2.4GHz?</p>
+</div>
+</div>
+</div>
+<!-- Typing Indicator (AI) -->
+<div class="flex gap-4 flex-row-reverse fade-in" id="ai-typing">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center border border-primary/20 flex-shrink-0 mt-auto shadow-sm">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-surface-container text-on-surface-variant rounded-2xl rounded-br-sm p-3 px-4 flex gap-1 items-center h-[46px] border border-outline-variant/50">
+<div class="w-2 h-2 bg-outline-variant rounded-full animate-bounce"></div>
+<div class="w-2 h-2 bg-outline-variant rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+<div class="w-2 h-2 bg-outline-variant rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 bg-surface-container-lowest border-t border-outline-variant">
+<div class="relative flex items-end gap-2 bg-surface border border-outline-variant rounded-xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all shadow-sm">
+<button class="p-2 text-outline hover:text-primary transition-colors rounded-lg hover:bg-surface-container mb-1">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none font-body-md text-body-md text-on-background placeholder:text-outline py-2.5 max-h-[120px] overflow-y-auto" disabled="" id="chat-input" placeholder="Type a message or use '/' for macros..." rows="1"></textarea>
+<div class="flex items-center gap-1 mb-1">
+<button class="p-2 text-outline hover:text-primary transition-colors rounded-lg hover:bg-surface-container">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+<button class="p-2 bg-surface-container text-outline rounded-lg cursor-not-allowed transition-colors" disabled="" id="send-btn">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<div class="mt-2 text-center" id="input-helper-text">
+<p class="text-[11px] text-on-surface-variant">AI is currently handling this conversation. Take over to send a message.</p>
+</div>
+</div>
+</div>
+<!-- Context/Metadata Sidebar -->
+<div class="w-[280px] bg-surface-container-lowest border-l border-outline-variant hidden lg:flex flex-col overflow-y-auto chat-scroll">
+<div class="p-5 border-b border-outline-variant">
+<h3 class="font-label-md text-label-md font-bold text-on-background mb-4 uppercase tracking-wider text-xs">Visitor Details</h3>
+<div class="space-y-4">
+<div>
+<p class="text-[11px] text-outline mb-1">Email</p>
+<p class="font-body-md text-body-md text-on-background text-sm">m.chen@example.com</p>
+</div>
+<div>
+<p class="text-[11px] text-outline mb-1">Location</p>
+<p class="font-body-md text-body-md text-on-background text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Seattle, WA
+                                </p>
+</div>
+<div>
+<p class="text-[11px] text-outline mb-1">Device &amp; Browser</p>
+<p class="font-body-md text-body-md text-on-background text-sm">Mac OS • Chrome</p>
+</div>
+</div>
+</div>
+<div class="p-5 border-b border-outline-variant">
+<h3 class="font-label-md text-label-md font-bold text-on-background mb-4 uppercase tracking-wider text-xs">AI Context</h3>
+<div class="space-y-3">
+<div class="bg-surface p-3 rounded-lg border border-outline-variant">
+<p class="text-[11px] text-outline mb-1">Intent Identified</p>
+<p class="font-label-md text-label-md text-on-background">Technical Support - Connectivity</p>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-[92%] rounded-full"></div>
+</div>
+<p class="text-[10px] text-right mt-1 text-on-surface-variant">92% Confidence</p>
+</div>
+<div class="bg-surface p-3 rounded-lg border border-outline-variant">
+<p class="text-[11px] text-outline mb-1">Sentiment</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[16px] text-amber-500">sentiment_neutral</span>
+<span class="font-label-md text-label-md text-on-background">Frustrated / Neutral</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-label-md text-label-md font-bold text-on-background mb-4 uppercase tracking-wider text-xs">Recent Articles Shared</h3>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 group cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-primary mt-0.5">description</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant group-hover:text-primary transition-colors line-clamp-2">Troubleshooting Smart Plug Wi-Fi Connection</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple Takeover Interaction Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const takeoverBtn = document.getElementById('takeover-btn');
+            const takeoverBanner = document.getElementById('takeover-banner');
+            const resumeAiBtn = document.getElementById('resume-ai-btn');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const inputHelperText = document.getElementById('input-helper-text');
+            const aiTyping = document.getElementById('ai-typing');
+
+            let isHumanControlling = false;
+
+            function toggleState() {
+                isHumanControlling = !isHumanControlling;
+
+                if (isHumanControlling) {
+                    // Enter Takeover state
+                    takeoverBanner.classList.remove('hidden');
+                    takeoverBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">smart_toy</span> Resume AI';
+                    takeoverBtn.classList.replace('bg-surface', 'bg-primary-container');
+                    takeoverBtn.classList.replace('text-on-surface', 'text-on-primary-container');
+                    
+                    chatInput.disabled = false;
+                    chatInput.placeholder = "Type your message to Michael...";
+                    sendBtn.disabled = false;
+                    sendBtn.classList.replace('bg-surface-container', 'bg-primary');
+                    sendBtn.classList.replace('text-outline', 'text-on-primary');
+                    sendBtn.classList.remove('cursor-not-allowed');
+                    
+                    inputHelperText.innerHTML = '<p class="text-[11px] text-primary font-medium">You are currently responding as human agent.</p>';
+                    aiTyping.style.display = 'none';
+                    
+                    chatInput.focus();
+                } else {
+                    // Revert to AI state
+                    takeoverBanner.classList.add('hidden');
+                    takeoverBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">front_hand</span> Take Over';
+                    takeoverBtn.classList.replace('bg-primary-container', 'bg-surface');
+                    takeoverBtn.classList.replace('text-on-primary-container', 'text-on-surface');
+                    
+                    chatInput.disabled = true;
+                    chatInput.value = '';
+                    chatInput.placeholder = "Type a message or use '/' for macros...";
+                    sendBtn.disabled = true;
+                    sendBtn.classList.replace('bg-primary', 'bg-surface-container');
+                    sendBtn.classList.replace('text-on-primary', 'text-outline');
+                    sendBtn.classList.add('cursor-not-allowed');
+                    
+                    inputHelperText.innerHTML = '<p class="text-[11px] text-on-surface-variant">AI is currently handling this conversation. Take over to send a message.</p>';
+                    aiTyping.style.display = 'flex';
+                }
+            }
+
+            takeoverBtn.addEventListener('click', toggleState);
+            resumeAiBtn.addEventListener('click', () => {
+                if(isHumanControlling) toggleState();
+            });
+        });
+    </script>
+</body></html>

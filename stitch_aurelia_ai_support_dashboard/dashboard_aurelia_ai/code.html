@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aurelia AI Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#33302c",
+                      "secondary-container": "#ff6b6b",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#e0d9d2",
+                      "on-secondary-container": "#6d0010",
+                      "on-surface-variant": "#464555",
+                      "on-primary-fixed": "#07006c",
+                      "on-primary-fixed-variant": "#2e2bc2",
+                      "tertiary-fixed": "#89f5e7",
+                      "surface-tint": "#4849da",
+                      "surface-container-low": "#faf2eb",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#1e1b17",
+                      "surface-container-highest": "#e8e1db",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#ffdad8",
+                      "surface": "#fff8f2",
+                      "primary-container": "#5d5fef",
+                      "tertiary": "#00655c",
+                      "outline-variant": "#c7c4d7",
+                      "surface-variant": "#e8e1db",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "on-tertiary-fixed": "#00201d",
+                      "secondary-fixed-dim": "#ffb3b0",
+                      "background": "#fff8f2",
+                      "error-container": "#ffdad6",
+                      "primary-fixed": "#e1e0ff",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed-dim": "#c1c1ff",
+                      "inverse-primary": "#c1c1ff",
+                      "tertiary-container": "#008075",
+                      "primary": "#4343d5",
+                      "on-secondary-fixed-variant": "#8c1520",
+                      "on-surface": "#1e1b17",
+                      "on-primary-container": "#faf7ff",
+                      "on-error-container": "#93000a",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#fff8f2",
+                      "secondary": "#ae2f34",
+                      "outline": "#767586",
+                      "on-tertiary-container": "#ddfff9",
+                      "inverse-on-surface": "#f7efe9",
+                      "surface-container": "#f4ede6",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed": "#410006",
+                      "surface-container-high": "#eee7e0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "container-margin": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "22px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .shadow-level-2 { box-shadow: 0px 4px 12px rgba(87, 83, 78, 0.08); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden antialiased flex">
+<!-- SideNavBar -->
+<nav class="bg-surface dark:bg-surface-dim fixed left-0 top-0 h-full w-[260px] border-r border-outline-variant dark:border-outline flat no shadows flex flex-col h-full py-6 z-20 hidden md:flex">
+<div class="px-lg mb-8">
+<div class="flex items-center gap-3">
+<img alt="Aurelia AI Logo" class="w-8 h-8 rounded-full" data-alt="A stylized geometric logo representing an AI entity in a clean, modern corporate style, primarily warm indigo colors on a white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_3dxxA_Hdpz-xSC1ukkGBzY7qe4wB-az8CEcKnYd931mYqP8EtdAQeTr_36F7U5OUGJTbW59ZE3LnEs5xKqnqrj1145uRPgnw_0-ScWop7LWGpgafqGv5A0oM_PQEtWlb0d7j6580AfXMCy8LnGN12auABT6MDgGMwPZ3jwaGlXw00CewCi7EKKlN4hxsZJpjmFeQAha_1P9-jKRQbPXZZUEDePGQeJ7SDka3gTQ-2OPfa6XNdPk-"/>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Aurelia AI</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Admin Console</p>
+</div>
+</div>
+</div>
+<div class="px-lg mb-6">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg hover:opacity-90 transition-opacity active:scale-[0.98] transition-transform">
+                New Agent
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-md space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-primary dark:text-primary-fixed bg-primary/5 dark:bg-primary-fixed/10 border-l-4 border-primary dark:border-primary-fixed hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" data-weight="fill" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="science">science</span>
+<span class="font-body-md text-body-md">Playground</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-body-md text-body-md">Agents</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span class="font-body-md text-body-md">Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="font-body-md text-body-md">Sessions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+<div class="px-md mt-auto pt-6 border-t border-outline-variant dark:border-outline space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Log Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[260px] min-h-screen flex flex-col relative bg-surface-bright">
+<!-- Background Shader -->
+<div class="absolute inset-0 z-0 pointer-events-none opacity-30 h-[40vh] overflow-hidden mix-blend-multiply">
+
+<div class="absolute inset-0 bg-gradient-to-b from-transparent to-surface-bright"></div>
+</div>
+<!-- TopNavBar -->
+<header class="bg-surface/80 backdrop-blur-md dark:bg-surface-dim/80 fixed top-0 right-0 w-full md:w-[calc(100%-260px)] h-16 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center px-lg h-full z-10">
+<div class="flex items-center gap-md h-full">
+<!-- Mobile Menu Toggle (Placeholder) -->
+<button class="md:hidden text-on-surface-variant p-sm">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden font-headline-md text-headline-md">Aurelia AI</div>
+<div class="flex h-full items-end">
+<a class="px-sm pb-sm text-primary dark:text-primary-fixed font-bold border-b-2 border-primary font-label-md text-label-md hover:text-primary dark:hover:text-primary-fixed transition-colors cursor-pointer active:opacity-80" href="#">Workspace</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-xl pr-sm py-1.5 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 text-on-surface" placeholder="Search..." type="text"/>
+</div>
+<button class="bg-surface-container-lowest border border-outline-variant text-on-surface font-label-md text-label-md px-md py-1.5 rounded-lg hover:bg-surface-container transition-colors hidden sm:block">
+                    Invite User
+                </button>
+<div class="flex items-center gap-xs">
+<button class="p-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+<img alt="Admin Profile Avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover cursor-pointer" data-alt="A professional headshot of a corporate administrator in a bright, modern office setting, friendly expression, well-lit warm lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQyAJZKRXbitJv--JhFnUAUGAIaVwnXXtONxS8cA33csNX6-T47mEgUuR41smFhyJBYMHbsGIVl6McDq9CqYCynhe3Kmd6anQLDcb_tCRv4YtAG3JWm5tFHPVtyVnl7npMLMSbXHZRqqiZyUTRLxYACd4Dut7uSrYrTDSaoD2GCSFAfD8OoPYWtb0NJR2dLx3VBhNIK9PukFJhi5ifwe54Jf1MDOqfQ-4X9079BSl7guTQDtnj7_e7"/>
+</div>
+</header>
+<!-- Page Content -->
+<div class="pt-24 px-md md:px-xl pb-xl flex-1 z-10 relative w-full max-w-[1440px] mx-auto">
+<div class="mb-lg flex justify-between items-end">
+<div>
+<h2 class="font-display text-display text-on-surface font-bold tracking-tight">Overview</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm">Monitor your workspace activity and agent performance.</p>
+</div>
+<div class="hidden sm:flex gap-sm">
+<button class="flex items-center gap-xs px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                        Last 7 Days
+                    </button>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-lg">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-level-2 glass-panel flex flex-col justify-between">
+<div class="flex justify-between items-start mb-lg">
+<div class="p-sm bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<span class="text-tertiary font-label-md text-label-md bg-tertiary/10 px-2 py-1 rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +12%
+                        </span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Active Sessions</h3>
+<div class="font-display text-display text-on-surface">42</div>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-level-2 glass-panel flex flex-col justify-between">
+<div class="flex justify-between items-start mb-lg">
+<div class="p-sm bg-tertiary/10 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">database</span>
+</div>
+<span class="text-on-surface-variant font-label-md text-label-md bg-surface-container px-2 py-1 rounded-full">
+                            Stable
+                        </span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Knowledge Sources</h3>
+<div class="font-display text-display text-on-surface">128</div>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-level-2 glass-panel flex flex-col justify-between">
+<div class="flex justify-between items-start mb-lg">
+<div class="p-sm bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="text-tertiary font-label-md text-label-md bg-tertiary/10 px-2 py-1 rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[12px]">trending_down</span> -0.3s
+                        </span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Avg. Response Time</h3>
+<div class="font-display text-display text-on-surface">1.2s</div>
+</div>
+</div>
+</div>
+<!-- Bottom Row Bento -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Main Area Chart Placeholder -->
+<div class="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-level-2 p-lg flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Session Volume</h3>
+<button class="text-on-surface-variant hover:text-primary p-xs rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 bg-surface-container-highest/20 rounded-lg border border-outline-variant/50 relative overflow-hidden flex items-center justify-center min-h-[300px]">
+<!-- Placeholder for a chart component -->
+<div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent"></div>
+<div class="absolute inset-0 flex items-end px-md pb-md">
+<div class="w-full flex justify-between items-end h-[200px] gap-sm opacity-50">
+<div class="w-1/12 bg-primary/20 rounded-t-sm h-1/4"></div>
+<div class="w-1/12 bg-primary/30 rounded-t-sm h-2/4"></div>
+<div class="w-1/12 bg-primary/40 rounded-t-sm h-1/3"></div>
+<div class="w-1/12 bg-primary/50 rounded-t-sm h-3/4"></div>
+<div class="w-1/12 bg-primary/60 rounded-t-sm h-2/3"></div>
+<div class="w-1/12 bg-primary/70 rounded-t-sm h-full"></div>
+<div class="w-1/12 bg-primary/80 rounded-t-sm h-4/5"></div>
+</div>
+</div>
+<span class="text-on-surface-variant font-body-md text-body-md z-10 relative">Chart Visualization Area</span>
+</div>
+</div>
+<!-- Activity Feed -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-level-2 p-lg flex flex-col h-[400px]">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Activity Feed</h3>
+</div>
+<div class="flex-1 overflow-y-auto pr-sm space-y-md">
+<!-- Feed Item 1 -->
+<div class="flex gap-md">
+<div class="w-8 h-8 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center shrink-0 mt-xs">
+<span class="material-symbols-outlined text-[16px]">public</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">New source crawled: <span class="font-medium">help.aurelia.ai</span></p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">2 mins ago</p>
+</div>
+</div>
+<!-- Feed Item 2 -->
+<div class="flex gap-md">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-xs">
+<span class="material-symbols-outlined text-[16px]">smart_toy</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Agent <span class="font-medium">"Support Bot"</span> updated system prompt</p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">45 mins ago</p>
+</div>
+</div>
+<!-- Feed Item 3 -->
+<div class="flex gap-md">
+<div class="w-8 h-8 rounded-full bg-error/10 text-error flex items-center justify-center shrink-0 mt-xs">
+<span class="material-symbols-outlined text-[16px]">error</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Sync failed for <span class="font-medium">Zendesk KB</span></p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">2 hours ago</p>
+</div>
+</div>
+<!-- Feed Item 4 -->
+<div class="flex gap-md">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shrink-0 mt-xs">
+<span class="material-symbols-outlined text-[16px]">person_add</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface">User <span class="font-medium">Sarah J.</span> accepted invite</p>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">Yesterday</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-md py-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+                        View All Activity
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

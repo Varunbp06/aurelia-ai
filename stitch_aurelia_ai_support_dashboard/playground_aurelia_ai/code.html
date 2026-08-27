@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aurelia AI - Playground</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#33302c",
+                      "secondary-container": "#ff6b6b",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-dim": "#e0d9d2",
+                      "on-secondary-container": "#6d0010",
+                      "on-surface-variant": "#464555",
+                      "on-primary-fixed": "#07006c",
+                      "on-primary-fixed-variant": "#2e2bc2",
+                      "tertiary-fixed": "#89f5e7",
+                      "surface-tint": "#4849da",
+                      "surface-container-low": "#faf2eb",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#1e1b17",
+                      "surface-container-highest": "#e8e1db",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#ffdad8",
+                      "surface": "#fff8f2",
+                      "primary-container": "#5d5fef",
+                      "tertiary": "#00655c",
+                      "outline-variant": "#c7c4d7",
+                      "surface-variant": "#e8e1db",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "on-tertiary-fixed": "#00201d",
+                      "secondary-fixed-dim": "#ffb3b0",
+                      "background": "#fff8f2",
+                      "error-container": "#ffdad6",
+                      "primary-fixed": "#e1e0ff",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed-dim": "#c1c1ff",
+                      "inverse-primary": "#c1c1ff",
+                      "tertiary-container": "#008075",
+                      "primary": "#4343d5",
+                      "on-secondary-fixed-variant": "#8c1520",
+                      "on-surface": "#1e1b17",
+                      "on-primary-container": "#faf7ff",
+                      "on-error-container": "#93000a",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#fff8f2",
+                      "secondary": "#ae2f34",
+                      "outline": "#767586",
+                      "on-tertiary-container": "#ddfff9",
+                      "inverse-on-surface": "#f7efe9",
+                      "surface-container": "#f4ede6",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed": "#410006",
+                      "surface-container-high": "#eee7e0"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "base": "4px",
+                      "lg": "24px",
+                      "container-margin": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Markdown rendering mock styles within chat bubbles */
+        .chat-markdown p { margin-bottom: 0.5rem; }
+        .chat-markdown p:last-child { margin-bottom: 0; }
+        .chat-markdown strong { font-weight: 600; }
+        .chat-markdown ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
+        .chat-markdown li { margin-bottom: 0.125rem; }
+        
+        /* Custom range slider thumb */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #4343d5; /* Primary */
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #c7c4d7; /* outline-variant */
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-hidden flex h-screen">
+<!-- SideNavBar (from JSON) -->
+<nav class="bg-surface dark:bg-surface-dim border-r border-outline-variant dark:border-outline fixed left-0 top-0 h-full w-[260px] flex flex-col h-full py-6 z-20">
+<!-- Header -->
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container font-bold">A</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Aurelia AI</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Admin Console</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary hover:bg-primary/90 rounded-lg py-2 font-label-md text-label-md flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                New Agent
+            </button>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto font-body-md text-body-md flex flex-col gap-1 px-2">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                Dashboard
+            </a>
+<!-- Playground (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-2 text-primary dark:text-primary-fixed bg-primary/5 dark:bg-primary-fixed/10 border-l-4 border-primary dark:border-primary-fixed rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">science</span>
+                Playground
+            </a>
+<!-- Agents (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">smart_toy</span>
+                Agents
+            </a>
+<!-- Knowledge (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">database</span>
+                Knowledge
+            </a>
+<!-- Sessions (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">forum</span>
+                Sessions
+            </a>
+<!-- Users (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">group</span>
+                Users
+            </a>
+<!-- Settings (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+                Settings
+            </a>
+</div>
+<!-- Footer Links -->
+<div class="px-2 mt-auto font-body-md text-body-md flex flex-col gap-1 border-t border-outline-variant/50 pt-4">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">help</span>
+                Help Center
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high transition-colors duration-200 active:scale-[0.98] rounded-r-full" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+                Log Out
+            </a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="ml-[260px] flex-1 flex flex-col h-full relative">
+<!-- TopNavBar (from JSON) -->
+<header class="bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline fixed top-0 right-0 w-[calc(100%-260px)] h-16 flex justify-between items-center px-lg h-full z-10">
+<div class="flex items-center gap-lg">
+<!-- Search (on_left configuration) -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-full py-1.5 pl-10 pr-4 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Search..." type="text"/>
+</div>
+<!-- Navigation Links -->
+<nav class="flex gap-md font-label-md text-label-md">
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary pb-[1.5rem] pt-[1.5rem] cursor-pointer active:opacity-80" href="#">Workspace</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<!-- Trailing Primary Action -->
+<button class="bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container px-4 py-1.5 rounded-lg font-label-md text-label-md transition-colors">
+                    Invite User
+                </button>
+<!-- Trailing Icon Actions -->
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">help</span>
+</button>
+<!-- Profile Image -->
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant ml-2">
+<img alt="Admin Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of an administrator in a modern, well-lit office setting. Warm lighting, approachable expression, light mode aesthetic, crisp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2N2BzNtwi68XXXFWV0PIXsNiWffRCsrx3yRRurKxKOJqY9mRVg4YqsOhYM5ux3ZsF8syxGoTUTCOF1-cF-ns43I3xq_jJWwh-Ezm7DiUD2gafanKAYfWnhWBMhPrcpK97CF8Tf5fc_Tx501K3e-Jc1Psqp2U0NeeYxZRScVgFowp1nTNBIsl9Q4LKxbawXXOoYLY4nOslxXybFgEWJWvY6xwbdBkM0oK0hoGrea8A0ikEzNnfvbyX"/>
+</div>
+</div>
+</header>
+<!-- Canvas / Playground Area -->
+<main class="mt-16 flex-1 flex gap-lg p-lg overflow-hidden bg-background">
+<!-- Left Column: Chat Interface -->
+<section class="flex-1 flex flex-col bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[0px_4px_12px_rgba(87,83,78,0.04)] overflow-hidden">
+<!-- Chat Header -->
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-lowest flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-weight="fill">chat</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Test Interaction</h2>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                        Clear
+                    </button>
+</div>
+<!-- Chat Messages Area -->
+<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-6 bg-surface">
+<!-- System/Context Notification -->
+<div class="flex justify-center">
+<span class="bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full font-label-md text-label-md">Session Started - Using 'Customer Support v2' Prompt</span>
+</div>
+<!-- Visitor Message -->
+<div class="flex flex-col items-end gap-1">
+<span class="font-label-md text-label-md text-on-surface-variant px-1">Visitor</span>
+<div class="bg-primary-container text-on-primary-container max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm font-body-md text-body-md">
+                            Hi, I'm trying to update my billing information but the form keeps throwing an error. Can you help?
+                        </div>
+</div>
+<!-- Agent (Model) Message -->
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-md text-label-md text-primary px-1 flex items-center gap-1">
+<span class="material-symbols-outlined" data-weight="fill" style="font-size: 14px;">smart_toy</span>
+                            Aurelia Agent
+                        </span>
+<div class="bg-surface-container-lowest border border-outline-variant text-on-surface max-w-[80%] rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm font-body-md text-body-md chat-markdown">
+<p>Hello! I'd be happy to help you with updating your billing information.</p>
+<p>To assist you better, could you please confirm a few details?</p>
+<ul>
+<li>Are you using the <strong>mobile app</strong> or the <strong>web dashboard</strong>?</li>
+<li>What is the exact error message you are seeing?</li>
+</ul>
+<p>In the meantime, you can try clearing your browser cache or trying an incognito window, as this often resolves form submission issues.</p>
+</div>
+<div class="flex gap-2 mt-1 px-1">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" style="font-size: 16px;">thumb_up</span></button>
+<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined" style="font-size: 16px;">thumb_down</span></button>
+</div>
+</div>
+<!-- Typing Indicator (Mock) -->
+<div class="flex flex-col items-start gap-1 opacity-50">
+<div class="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1">
+<div class="w-2 h-2 rounded-full bg-outline animate-pulse"></div>
+<div class="w-2 h-2 rounded-full bg-outline animate-pulse delay-75"></div>
+<div class="w-2 h-2 rounded-full bg-outline animate-pulse delay-150"></div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="p-4 bg-surface-container-lowest border-t border-outline-variant">
+<div class="flex items-end gap-3 bg-surface-container border border-outline-variant rounded-xl p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 resize-none font-body-md text-body-md text-on-surface p-2 max-h-32" placeholder="Type a message as the visitor..." rows="1"></textarea>
+<button class="bg-primary text-on-primary w-10 h-10 rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0 mb-1 mr-1 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 20px;">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Column: Inspector Panel -->
+<aside class="w-[400px] flex flex-col bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[0px_4px_12px_rgba(87,83,78,0.04)] overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-lowest">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">tune</span>
+                        Inspector
+                    </h2>
+</div>
+<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
+<!-- Section 1: Model Settings -->
+<div class="flex flex-col gap-4">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Model Settings</h3>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface">Provider</label>
+<div class="relative">
+<select class="w-full bg-surface-container border border-outline-variant rounded-lg py-2 pl-3 pr-10 font-body-md text-body-md text-on-surface appearance-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+<option>OpenAI (GPT-4 Turbo)</option>
+<option>Anthropic (Claude 3 Opus)</option>
+<option>Google (Gemini Pro)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface">Temperature</label>
+<span class="font-body-md text-body-md text-primary font-medium">0.7</span>
+</div>
+<input class="w-full appearance-none bg-transparent" max="1" min="0" step="0.1" type="range" value="0.7"/>
+<div class="flex justify-between text-xs text-on-surface-variant mt-1">
+<span>Precise</span>
+<span>Creative</span>
+</div>
+</div>
+</div>
+<!-- Section 2: System Prompt -->
+<div class="flex flex-col gap-2">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">System Prompt</h3>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg p-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-y" placeholder="You are a helpful assistant..." rows="6"></textarea>
+</div>
+<!-- Section 3: Retrieved Context -->
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Retrieved Context</h3>
+<span class="bg-primary/10 text-primary font-label-md text-label-md px-2 py-0.5 rounded-full">2 chunks</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Chunk 1 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<div class="flex justify-between items-start pl-2">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">article</span>
+                                        Billing FAQs
+                                    </span>
+<span class="text-xs text-outline">0.89 score</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface text-sm line-clamp-3 pl-2">
+                                    If a user experiences an error while updating their payment method, they should first verify that the card is not expired. If the issue persists across different browsers, it is likely a cache issue. Advise them to clear cookies or use incognito mode.
+                                </p>
+<a class="pl-2 font-label-md text-label-md text-primary hover:underline flex items-center gap-1 mt-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 14px;">link</span>
+                                    docs.aurelia.ai/billing-errors
+                                </a>
+</div>
+<!-- Chunk 2 -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-3 flex flex-col gap-2 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<div class="flex justify-between items-start pl-2">
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">article</span>
+                                        Platform Status
+                                    </span>
+<span class="text-xs text-outline">0.72 score</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface text-sm line-clamp-2 pl-2">
+                                    All billing systems are currently operational. No known outages reported for the Stripe integration webhook.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Inspector Footer Action -->
+<div class="p-4 border-t border-outline-variant bg-surface-container-lowest">
+<button class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container rounded-lg py-2.5 font-label-md text-label-md flex items-center justify-center gap-2 transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+                        Save Settings
+                    </button>
+</div>
+</aside>
+</main>
+</div>
+</body></html>
