@@ -1,4 +1,4 @@
-# Basjoo 测试指南
+# Aurelia AI 测试指南
 
 ## 快速开始
 
