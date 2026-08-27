@@ -1,0 +1,62 @@
+services:
+  # FastAPI Backend
+  - type: web
+    name: aurelia-backend
+    env: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aurelia-db
+          property: connectionString
+      - key: REDIS_URL
+        fromRedis:
+          name: aurelia-redis
+          property: connectionString
+      - key: QDRANT_URL
+        fromService:
+          name: aurelia-qdrant
+          property: url
+          type: web
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+        value: "https://aurelia-ai-topaz.vercel.app"
+      - key: PUBLIC_REGISTRATION_ENABLED
+        value: "true"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: DEFAULT_RATE_LIMIT
+        value: "1000"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "1000"
+      - key: RATE_LIMIT_BURST_SIZE
+        value: "200"
+
+  # Qdrant Vector Database (self-hosted)
+  - type: web
+    name: aurelia-qdrant
+    env: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: Dockerfile.qdrant
+    healthCheckPath: /readyz
+    envVars: []
+
+databases:
+  - name: aurelia-db
+    plan: starter
+    databaseName: aurelia
+    user: aurelia
+
+redis:
+  - name: aurelia-redis
+    plan: starter
+    ipAllowList: []
