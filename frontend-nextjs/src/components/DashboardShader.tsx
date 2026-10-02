@@ -58,10 +58,21 @@ function prefersReducedMotion(): boolean {
 export default function DashboardShader() {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const [enabled, setEnabled] = useState(false);
+	// Starts false on both server and client so hydration matches; the effect
+	// below resolves the real preference on mount.
+	const [reduced, setReduced] = useState(false);
 	const isMobile = useIsMobile();
 
 	useEffect(() => {
-		if (isMobile || prefersReducedMotion()) {
+		const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+		const sync = () => setReduced(media.matches);
+		sync();
+		media.addEventListener("change", sync);
+		return () => media.removeEventListener("change", sync);
+	}, []);
+
+	useEffect(() => {
+		if (isMobile || reduced) {
 			setEnabled(false);
 			return;
 		}
@@ -177,7 +188,7 @@ export default function DashboardShader() {
 			media.removeEventListener("change", handleMediaChange);
 			gl.getExtension("WEBGL_lose_context")?.loseContext();
 		};
-	}, [isMobile]);
+	}, [isMobile, reduced]);
 
 	return (
 		<div
