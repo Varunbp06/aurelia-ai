@@ -180,3 +180,6 @@ ssl/
 *.key
 *.crt
 *.cer
+
+# local test virtualenv created for backend test runs
+backend/.venv-test/

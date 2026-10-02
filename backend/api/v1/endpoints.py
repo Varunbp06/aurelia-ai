@@ -1556,14 +1556,25 @@ async def get_contexts(
 
     根据PRD第8.2节规范
     """
-    # 获取Agent
-    result = await db.execute(select(Agent).where(Agent.id == request.agent_id))
+    # This endpoint is intentionally public so the embeddable widget works without
+    # an end-user session, so it must only ever expose *active* agents. Inactive
+    # agents are treated as unknown (no existence oracle) and never served.
+    #
+    # Tenant isolation is NOT enforced here by design: it is enforced downstream in
+    # KbRetrievalService.retrieve(), which resolves the agent's bound knowledge base
+    # and filters Qdrant by both kb_id and the KB's tenant_id.
+    result = await db.execute(
+        select(Agent).where(
+            Agent.id == request.agent_id,
+            Agent.is_active == True,  # noqa: E712
+        )
+    )
     agent = result.scalar_one_or_none()
 
     if not agent:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Agent {request.agent_id} not found",
+            detail="Agent not found",
         )
 
     agent_id = agent.id
