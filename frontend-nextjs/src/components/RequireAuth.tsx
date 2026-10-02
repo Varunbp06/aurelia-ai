@@ -62,7 +62,7 @@ function isSupportAllowedAgentPath(pathname: string): boolean {
 
 export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     const { t } = useTranslation('common');
-    const { token, admin, isLoading } = useAuth();
+    const { token, admin, isLoading, adminStatus, revalidate } = useAuth();
     const location = useLocation();
     const [mounted, setMounted] = useState(false);
 
@@ -85,6 +85,36 @@ export const RequireAuth = ({ children }: { children: React.ReactNode }) => {
 
     if (!token) {
         return <Navigate to="/login" replace />;
+    }
+
+    // The role in `admin` is only authoritative once the backend has confirmed
+    // it. Until then a cached "super_admin" from a previous session must not
+    // unlock privileged screens, and if verification failed we stay in a
+    // restricted, retryable state rather than trusting the cache.
+    if (adminStatus !== 'verified') {
+        if (adminStatus === 'failed') {
+            return (
+                <div
+                    role="alert"
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100vh',
+                        textAlign: 'center',
+                        padding: '24px',
+                    }}
+                >
+                    <span>{t('errors.networkError')}</span>
+                    <button type="button" onClick={() => revalidate()}>
+                        {t('retry')}
+                    </button>
+                </div>
+            );
+        }
+        return loadingView;
     }
 
     // Workspace super admins can access everything

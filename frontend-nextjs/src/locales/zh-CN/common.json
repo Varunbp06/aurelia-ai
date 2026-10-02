@@ -832,5 +832,6 @@
 		"humanTakenOverBadge": "人工接管",
 		"aiHandlingChip": "AI 处理中",
 		"needsHumanChip": "需人工介入"
-	}
+	},
+	"retry": "重试"
 }

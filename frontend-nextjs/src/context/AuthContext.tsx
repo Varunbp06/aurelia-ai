@@ -19,6 +19,17 @@ interface Admin {
 	role: string;
 }
 
+/**
+ * Whether the current admin role has been confirmed by the backend.
+ *
+ * - `pending`  cached session restored, /api/admin/me not yet answered
+ * - `verified` backend confirmed the identity and role
+ * - `failed`   verification could not complete (network/server error)
+ *
+ * Only `verified` may unlock privileged UI.
+ */
+export type AdminStatus = 'pending' | 'verified' | 'failed';
+
 interface AuthContextType {
 	admin: Admin | null;
 	token: string | null;
@@ -26,6 +37,8 @@ interface AuthContextType {
 	logout: () => void;
 	register: (email: string, password: string, name: string) => Promise<void>;
 	isLoading: boolean;
+	adminStatus: AdminStatus;
+	revalidate: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,17 +77,28 @@ function isTokenExpired(token: string): boolean {
 		return false;
 	}
 	return payload.exp * 1000 <= Date.now();
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+}export function AuthProvider({ children }: { children: ReactNode }) {
 	const { t } = useTranslation("auth");
 	const [admin, setAdmin] = useState<Admin | null>(null);
 	const [token, setToken] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	// A cached admin object is a hint for rendering only. Privileged UI is
+	// granted once (and only once) the backend has confirmed the current role,
+	// so a downgrade or deactivation cannot be masked by stale local state.
+	const [adminStatus, setAdminStatus] = useState<AdminStatus>('pending');
+	const [verifyNonce, setVerifyNonce] = useState(0);
+
+	const revalidate = useCallback(() => {
+		setAdminStatus('pending');
+		setIsLoading(true);
+		setVerifyNonce((n) => n + 1);
+	}, []);
 
 	const persistSession = useCallback((data: LoginResponseData) => {
 		setToken(data.access_token);
 		setAdmin(data.admin);
+		setAdminStatus('verified');
+		setIsLoading(false);
 		localStorage.setItem(TOKEN_STORAGE_KEY, data.access_token);
 		localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(data.admin));
 	}, []);
@@ -82,6 +106,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const logout = useCallback(() => {
 		setToken(null);
 		setAdmin(null);
+		setAdminStatus('pending');
+		setIsLoading(false);
 		localStorage.removeItem(TOKEN_STORAGE_KEY);
 		localStorage.removeItem(ADMIN_STORAGE_KEY);
 	}, []);
@@ -93,8 +119,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		if (savedToken && savedAdmin && !isTokenExpired(savedToken)) {
 			try {
 				setToken(savedToken);
+				// Cached value only. isLoading stays true until /api/admin/me
+				// answers, so the cached role never grants access on its own.
 				setAdmin(JSON.parse(savedAdmin));
-				setIsLoading(false);
+				setAdminStatus('pending');
 				return;
 			} catch {
 				localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -134,10 +162,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 						role: data.role,
 					};
 					setAdmin(updated);
+					setAdminStatus('verified');
+					setIsLoading(false);
 					localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(updated));
 				}
 			} catch {
-				// Network error — keep existing cached admin, don't log out.
+				// Verification could not complete. Stay signed in but drop to a
+				// restricted state: keeping the cached role here is what let a
+				// demoted or deactivated admin keep privileged UI while the
+				// backend was unreachable.
+				if (!cancelled) {
+					setAdminStatus('failed');
+					setIsLoading(false);
+				}
 			}
 		};
 
@@ -145,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		return () => {
 			cancelled = true;
 		};
-	}, [token, logout]);
+	}, [token, logout, verifyNonce]);
 
 	useEffect(() => {
 		if (!token) {
@@ -213,7 +250,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	return (
 		<AuthContext.Provider
-			value={{ admin, token, login, logout, register, isLoading }}
+			value={{ admin, token, login, logout, register, isLoading, adminStatus, revalidate }}
 		>
 			{children}
 		</AuthContext.Provider>

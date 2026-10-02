@@ -832,5 +832,6 @@
 		"humanTakenOverBadge": "Human-Takeover",
 		"aiHandlingChip": "AI Handling",
 		"needsHumanChip": "Needs Human"
-	}
+	},
+	"retry": "Retry"
 }
