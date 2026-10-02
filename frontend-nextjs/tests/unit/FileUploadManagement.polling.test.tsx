@@ -169,6 +169,8 @@ describe("FileUploadManagement file status polling", () => {
 
 		// Wait for a few polling cycles with processing files
 		vi.advanceTimersByTime(6000);
+		// The polling callback is async, so flush pending timers before asserting.
+		await vi.runOnlyPendingTimersAsync();
 		await waitFor(() => {
 			expect(mockedApi.listFiles.mock.calls.length).toBeGreaterThanOrEqual(2);
 		});
@@ -211,6 +213,7 @@ describe("FileUploadManagement file status polling", () => {
 
 		// Advance timer to trigger polling
 		vi.advanceTimersByTime(3000);
+		await vi.runOnlyPendingTimersAsync();
 
 		// Should call listFiles (via loadFiles)
 		await waitFor(() => {
@@ -265,6 +268,7 @@ describe("FileUploadManagement file status polling", () => {
 
 		// Advance timer by 3 seconds
 		vi.advanceTimersByTime(3000);
+		await vi.runOnlyPendingTimersAsync();
 
 		// Should poll for pending files too
 		await waitFor(() => {
