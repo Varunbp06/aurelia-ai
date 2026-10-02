@@ -183,3 +183,8 @@ ssl/
 
 # local test virtualenv created for backend test runs
 backend/.venv-test/
+
+# Vercel CLI local project link and env pulls
+.vercel/
+.vercel
+.env*
