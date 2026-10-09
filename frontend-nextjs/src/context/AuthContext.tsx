@@ -39,11 +39,14 @@ interface AuthContextType {
 	isLoading: boolean;
 	adminStatus: AdminStatus;
 	revalidate: () => void;
+	/** True when the visitor is inside a frontend-only demo session. */
+	isDemoMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = "token";
 const ADMIN_STORAGE_KEY = "admin";
+const DEMO_MODE_KEY = "demo_mode";
 
 interface LoginResponseData {
 	access_token: string;
@@ -77,11 +80,16 @@ function isTokenExpired(token: string): boolean {
 		return false;
 	}
 	return payload.exp * 1000 <= Date.now();
-}export function AuthProvider({ children }: { children: ReactNode }) {
+}
+export function AuthProvider({ children }: { children: ReactNode }) {
 	const { t } = useTranslation("auth");
 	const [admin, setAdmin] = useState<Admin | null>(null);
 	const [token, setToken] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+		if (typeof window === "undefined") return false;
+		return localStorage.getItem(DEMO_MODE_KEY) === "1";
+	});
 	// A cached admin object is a hint for rendering only. Privileged UI is
 	// granted once (and only once) the backend has confirmed the current role,
 	// so a downgrade or deactivation cannot be masked by stale local state.
@@ -108,8 +116,10 @@ function isTokenExpired(token: string): boolean {
 		setAdmin(null);
 		setAdminStatus('pending');
 		setIsLoading(false);
+		setIsDemoMode(false);
 		localStorage.removeItem(TOKEN_STORAGE_KEY);
 		localStorage.removeItem(ADMIN_STORAGE_KEY);
+		localStorage.removeItem(DEMO_MODE_KEY);
 	}, []);
 
 	useEffect(() => {
@@ -144,6 +154,14 @@ function isTokenExpired(token: string): boolean {
 		let cancelled = false;
 
 		const refresh = async () => {
+			// Frontend demo sessions have no real backend to verify against.
+			// Keep the simulated identity unlocked and disclosed instead of
+			// dropping to a restricted state.
+			if (isDemoMode) {
+				setAdminStatus('verified');
+				setIsLoading(false);
+				return;
+			}
 			try {
 				const response = await fetch(`${API_BASE_URL}/api/admin/me`, {
 					headers: { Authorization: `Bearer ${token}` },
@@ -182,7 +200,7 @@ function isTokenExpired(token: string): boolean {
 		return () => {
 			cancelled = true;
 		};
-	}, [token, logout, verifyNonce]);
+	}, [token, logout, verifyNonce, isDemoMode]);
 
 	useEffect(() => {
 		if (!token) {
@@ -211,11 +229,20 @@ function isTokenExpired(token: string): boolean {
 	}, [logout, token]);
 
 	const login = async (email: string, password: string) => {
-		const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, password }),
-		});
+		let response: Response;
+		try {
+			response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password }),
+			});
+		} catch {
+			// Backend unreachable: Aurelia AI is a resume demonstration, so
+			// enter a clearly-disclosed frontend-only demo session instead of
+			// a dead end. No account is created and no token is real.
+			enterDemoSession(email);
+			return;
+		}
 
 		if (!response.ok) {
 			const message = await parseErrorResponse(response);
@@ -226,6 +253,26 @@ function isTokenExpired(token: string): boolean {
 
 		persistSession(data);
 	};
+
+	/**
+	 * Frontend-only demo session: a synthetic admin identity stored locally.
+	 * Explicitly marked demo mode so the UI can disclose it. Never claims a
+	 * real account or authentication token.
+	 */
+	const enterDemoSession = useCallback((email: string) => {
+		const demoAdmin: Admin = {
+			id: 0,
+			email: email || "demo@aurelia.local",
+			name: "Demo Admin",
+			role: "admin",
+		};
+		setIsDemoMode(true);
+		localStorage.setItem(DEMO_MODE_KEY, "1");
+		persistSession({
+			access_token: "demo-session",
+			admin: demoAdmin,
+		});
+	}, [persistSession]);
 
 	const register = async (email: string, password: string, name: string) => {
 		const response = await fetch(`${API_BASE_URL}/api/admin/register`, {
@@ -250,7 +297,7 @@ function isTokenExpired(token: string): boolean {
 
 	return (
 		<AuthContext.Provider
-			value={{ admin, token, login, logout, register, isLoading, adminStatus, revalidate }}
+			value={{ admin, token, login, logout, register, isLoading, adminStatus, revalidate, isDemoMode }}
 		>
 			{children}
 		</AuthContext.Provider>

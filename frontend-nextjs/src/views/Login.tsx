@@ -287,6 +287,27 @@ export const Login = () => {
 							)}
 						</button>
 					</form>
+
+					<div
+						style={{
+							marginTop: "var(--space-5)",
+							padding: "var(--space-4)",
+							borderRadius: "var(--radius-md)",
+							background: "hsla(210deg, 80%, 60%, 0.08)",
+							border: "1px solid hsla(210deg, 80%, 60%, 0.25)",
+							fontSize: "var(--text-sm)",
+							lineHeight: 1.5,
+							color: "var(--color-text-secondary)",
+						}}
+					>
+						<strong style={{ color: "var(--color-text-primary)" }}>
+							Demo preview.
+						</strong>{" "}
+						Aurelia AI is a resume demonstration. If the server is
+						offline, any valid-looking credentials enter a simulated
+						workspace — no real account is created and no password is
+						stored.
+					</div>
 				</div>
 
 			{bootstrapRequired && (

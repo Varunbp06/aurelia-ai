@@ -194,7 +194,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { agentId } = useParams<{ agentId?: string }>();
-	const { admin, logout } = useAuth();
+	const { admin, logout, isDemoMode } = useAuth();
 	const isMobile = useIsMobile();
 	const isTablet = useIsTablet();
 	const iconOnly = isTablet;
@@ -834,9 +834,31 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 									whiteSpace: "nowrap",
 									overflow: "hidden",
 									textOverflow: "ellipsis",
+									display: "flex",
+									alignItems: "center",
+									gap: "var(--space-2)",
 								}}
 							>
 								{admin?.name || t("navigation.administrator")}
+								{isDemoMode && (
+									<span
+										title="Frontend demo session — no live backend"
+										style={{
+											fontSize: "10px",
+											fontWeight: 600,
+											textTransform: "uppercase",
+											letterSpacing: "0.04em",
+											color: "var(--color-accent-primary)",
+											border: "1px solid hsla(210deg, 80%, 60%, 0.35)",
+											background: "hsla(210deg, 80%, 60%, 0.1)",
+											borderRadius: "999px",
+											padding: "2px 8px",
+											flexShrink: 0,
+										}}
+									>
+										Demo
+									</span>
+								)}
 							</div>
 							<div
 								style={{
