@@ -1,0 +1,22 @@
+Aurelia AI — NOTICE
+===================
+
+Aurelia AI is a derivative work built on the open-source Basjoo project.
+
+Upstream project
+----------------
+  Basjoo
+  https://github.com/haoyiyin/basjoo
+  Copyright (c) 2026 haoyiyin
+  Licensed under the MIT License (see LICENSE)
+
+Modifications ("Aurelia AI")
+----------------------------
+  Copyright (C) 2026 Varun B P
+  https://github.com/Varunbp06
+
+Rebranding the product and adding features does not transfer copyright of the
+upstream source. The upstream author's copyright notice is retained in LICENSE,
+as required by the MIT License.
+
+Third-party dependencies retain their own licenses and notices.
