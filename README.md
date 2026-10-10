@@ -288,7 +288,11 @@ aurelia-ai/
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-Aurelia AI is a derivative work of [Basjoo](https://github.com/haoyiyin/basjoo) (MIT). Upstream copyright is retained; modifications and branding are © 2026 Varun B P ([github.com/Varunbp06](https://github.com/Varunbp06)). See [NOTICE](NOTICE).
+**Upstream foundation:** This project is derived from
+[haoyiyin/basjoo](https://github.com/haoyiyin/basjoo) (MIT, © 2026 haoyiyin). The upstream
+copyright notice is preserved in [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+**Developer and maintainer:** Varun B P · [GitHub](https://github.com/Varunbp06)
 
 ---
 
