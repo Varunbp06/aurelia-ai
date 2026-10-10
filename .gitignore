@@ -165,6 +165,8 @@ e2e-test/test-results/
 e2e-test/artifacts/
 e2e-test/node_modules/
 widget/artifacts/
+tests/playwright-report/
+playwright-report/
 
 # 测试数据库（本地开发产生）
 *.db-wal
