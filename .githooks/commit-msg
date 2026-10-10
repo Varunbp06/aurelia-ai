@@ -1,0 +1,27 @@
+#!/bin/sh
+# Reject AI-tool promotional footers in commit messages.
+#
+# This repository does not want automated "Generated with <tool>" hype lines or
+# agent co-author trailers appended to commits. The commit message must describe
+# the change in its own words.
+#
+# Activate per clone with:
+#     git config core.hooksPath .githooks
+# or copy this file to .git/hooks/commit-msg and make it executable.
+
+msg_file="$1"
+
+if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
+    exit 0
+fi
+
+if grep -Eiq 'codebuff|noreply@codebuff\.com' "$msg_file"; then
+    echo "commit-msg: commit REJECTED." >&2
+    echo "The message contains a prohibited AI-tool signature:" >&2
+    grep -Ein 'codebuff' "$msg_file" | sed 's/^/    /' >&2
+    echo "Remove the footer / co-author trailer and commit a message that" >&2
+    echo "describes the change (e.g. 'fix: repair deployment configuration')." >&2
+    exit 1
+fi
+
+exit 0
