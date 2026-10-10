@@ -167,8 +167,8 @@ clone_repo() {
 			run_root chown "$(id -u):$(id -g)" "$BASJOO_DIR"
 		fi
 	fi
-	log "Cloning $BASJOO_REPO_URL into $BASJOO_DIR"
-	git clone --branch "$BASJOO_BRANCH" "$BASJOO_REPO_URL" "$BASJOO_DIR"
+	log "Cloning $AURELIA_REPO_URL into $BASJOO_DIR"
+	git clone --branch "$BASJOO_BRANCH" "$AURELIA_REPO_URL" "$BASJOO_DIR"
 }
 
 sync_repo() {
@@ -182,11 +182,11 @@ sync_repo() {
 	fi
 
 	if [ -d "$BASJOO_DIR/.git" ]; then
-		log "Syncing repository to $BASJOO_REPO_URL#$BASJOO_BRANCH"
+		log "Syncing repository to $AURELIA_REPO_URL#$BASJOO_BRANCH"
 		if git -C "$BASJOO_DIR" remote get-url origin >/dev/null 2>&1; then
-			git -C "$BASJOO_DIR" remote set-url origin "$BASJOO_REPO_URL"
+			git -C "$BASJOO_DIR" remote set-url origin "$AURELIA_REPO_URL"
 		else
-			git -C "$BASJOO_DIR" remote add origin "$BASJOO_REPO_URL"
+			git -C "$BASJOO_DIR" remote add origin "$AURELIA_REPO_URL"
 		fi
 		git -C "$BASJOO_DIR" fetch --prune origin "$BASJOO_BRANCH"
 		git -C "$BASJOO_DIR" reset --hard

@@ -23,7 +23,7 @@
     "customer-service",
     "aurelia"
   ],
-  "author": "Aurelia Team",
+  "author": "Varun B P <varunbpvarunbp@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@types/jsdom": "^28.0.3",
