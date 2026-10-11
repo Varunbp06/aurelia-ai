@@ -19,25 +19,45 @@ from core.encryption import encrypt_api_key
 def _to_async_database_url(database_url: str) -> str:
     if database_url.startswith("sqlite:///"):
         return database_url.replace("sqlite:///", "sqlite+aiosqlite:///")
-    # Plain Postgres URLs (e.g. the connection string Neon provides) need an
-    # async driver for the async engine — route them to asyncpg.
+    # Plain Postgres URLs (e.g. the Neon connection string) need an async driver
+    # for the async engine — route them to asyncpg.
+    # Drop an explicit sslmode query param: the asyncpg/Windows dialect does not
+    # accept "sslmode" as a connect kwarg (TypeError), and we wire up TLS via a
+    # proper ssl.SSLContext in _create_engine instead.
+    out = database_url
     if database_url.startswith("postgresql://"):
-        return database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    if database_url.startswith("postgres://"):
-        return database_url.replace("postgres://", "postgresql+asyncpg://", 1)
-    return database_url
+        out = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif database_url.startswith("postgres://"):
+        out = database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+    else:
+        return out
+    if "?" in out:
+        base, _, query = out.partition("?")
+        kv = [p for p in query.split("&") if not p.lower().startswith("sslmode=")]
+        out = base + ("?" + "&".join(kv) if kv else "")
+    return out
 
 
 def _create_engine(database_url: str):
     async_database_url = _to_async_database_url(database_url)
     is_sqlite = async_database_url.startswith("sqlite")
+    is_postgres = async_database_url.startswith("postgresql")
+    connect_args: dict = {"check_same_thread": False} if is_sqlite else {}
+    if is_postgres:
+        # Neon/Postgres require TLS. asyncpg rejects a bare "sslmode" kwarg on
+        # Windows, so provide a verified TLS context explicitly.
+        import ssl as _ssl
+        try:
+            connect_args["ssl"] = _ssl.create_default_context()
+        except Exception:
+            connect_args["ssl"] = True
     engine = create_async_engine(
         async_database_url,
         echo=False,
         pool_pre_ping=True,
         poolclass=NullPool,
         # check_same_thread is SQLite-only; asyncpg rejects unknown connect args.
-        connect_args={"check_same_thread": False} if is_sqlite else {},
+        connect_args=connect_args,
     )
 
     if is_sqlite:
