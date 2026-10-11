@@ -167,8 +167,8 @@ clone_repo() {
 			run_root chown "$(id -u):$(id -g)" "$BASJOO_DIR"
 		fi
 	fi
-	log "Cloning $BASJOO_REPO_URL into $BASJOO_DIR"
-	git clone --branch "$BASJOO_BRANCH" "$BASJOO_REPO_URL" "$BASJOO_DIR"
+	log "Cloning $AURELIA_REPO_URL into $BASJOO_DIR"
+	git clone --branch "$BASJOO_BRANCH" "$AURELIA_REPO_URL" "$BASJOO_DIR"
 }
 
 sync_repo() {
@@ -182,11 +182,11 @@ sync_repo() {
 	fi
 
 	if [ -d "$BASJOO_DIR/.git" ]; then
-		log "Syncing repository to $BASJOO_REPO_URL#$BASJOO_BRANCH"
+		log "Syncing repository to $AURELIA_REPO_URL#$BASJOO_BRANCH"
 		if git -C "$BASJOO_DIR" remote get-url origin >/dev/null 2>&1; then
-			git -C "$BASJOO_DIR" remote set-url origin "$BASJOO_REPO_URL"
+			git -C "$BASJOO_DIR" remote set-url origin "$AURELIA_REPO_URL"
 		else
-			git -C "$BASJOO_DIR" remote add origin "$BASJOO_REPO_URL"
+			git -C "$BASJOO_DIR" remote add origin "$AURELIA_REPO_URL"
 		fi
 		git -C "$BASJOO_DIR" fetch --prune origin "$BASJOO_BRANCH"
 		git -C "$BASJOO_DIR" reset --hard
@@ -281,22 +281,28 @@ show_failure_logs() {
 }
 
 verify_deployment() {
-	log "Waiting for container health checks"    wait_for_container aurelia-redis healthy 120 || {
+	log "Waiting for container health checks"
+	wait_for_container aurelia-redis healthy 120 || {
 		show_failure_logs
 		fail "Redis did not become healthy in time."
-	}    wait_for_container aurelia-postgres healthy 120 || {
+	}
+	wait_for_container aurelia-postgres healthy 120 || {
 		show_failure_logs
 		fail "PostgreSQL did not become healthy in time."
-	}    wait_for_container aurelia-qdrant healthy 120 || {
+	}
+	wait_for_container aurelia-qdrant healthy 120 || {
 		show_failure_logs
 		fail "Qdrant did not become healthy in time."
-	}    wait_for_container aurelia-backend healthy 180 || {
+	}
+	wait_for_container aurelia-backend healthy 180 || {
 		show_failure_logs
 		fail "Backend did not become healthy in time."
-	}    wait_for_container aurelia-frontend healthy 180 || {
+	}
+	wait_for_container aurelia-frontend healthy 180 || {
 		show_failure_logs
 		fail "Frontend did not become healthy in time."
-	}    wait_for_container aurelia-nginx running 120 || {
+	}
+	wait_for_container aurelia-nginx running 120 || {
 		show_failure_logs
 		fail "nginx did not enter the running state in time."
 	}
@@ -379,7 +385,8 @@ print_summary() {
 
 deploy_repo() {
 	[ -f "$BASJOO_DIR/deploy.sh" ] || fail "deploy.sh was not found in $BASJOO_DIR."
-	[ -f "$BASJOO_DIR/docker-compose.yml" ] || fail "docker-compose.yml was not found in $BASJOO_DIR."    log "Running Aurelia AI production deployment"
+	[ -f "$BASJOO_DIR/docker-compose.yml" ] || fail "docker-compose.yml was not found in $BASJOO_DIR."
+	log "Running Aurelia AI production deployment"
 	BASJOO_DOCKER_BIN="$DOCKER_BIN" sh "$BASJOO_DIR/deploy.sh"
 }
 

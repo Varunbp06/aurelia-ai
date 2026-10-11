@@ -1,7 +1,7 @@
 {
   "name": "@aurelia/widget",
   "version": "1.0.0",
-  "description": "Aurelia AI Chat Widget - 可嵌入的智能聊天组件",
+  "description": "Aurelia AI Chat Widget - embeddable smart chat component",
   "main": "dist/aurelia-widget.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -23,7 +23,7 @@
     "customer-service",
     "aurelia"
   ],
-  "author": "Aurelia Team",
+  "author": "Varun B P <varunbpvarunbp@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@types/jsdom": "^28.0.3",

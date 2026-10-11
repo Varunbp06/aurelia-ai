@@ -1,129 +1,129 @@
-# Aurelia AI 测试指南
+# Aurelia AI Testing Guide
 
-## 快速开始
+## Quick Start
 
-### 运行所有后端测试
+### Run all backend tests
 
 ```bash
 cd backend
 pytest
 ```
 
-### 运行单个测试文件
+### Run a single test file
 
 ```bash
 cd backend
 pytest tests/test_api.py
 ```
 
-### 运行单个测试
+### Run a single test
 
 ```bash
 cd backend
 pytest tests/test_api.py::test_name
 ```
 
-### 常用 pytest 选项
+### Common pytest options
 
 ```bash
-pytest -v                     # 详细输出
-pytest -x                     # 首次失败即停止
-pytest --tb=short             # 精简 traceback
-pytest -k "pattern"           # 按名称过滤测试
-pytest -v -x --tb=short       # 组合使用
+pytest -v                     # verbose output
+pytest -x                     # stop on first failure
+pytest --tb=short             # shortened tracebacks
+pytest -k "pattern"           # filter tests by name
+pytest -v -x --tb=short       # combine options
 ```
 
-## 测试分层
+## Test Layers
 
-| 层级 | 位置 | 框架 | 运行命令 |
+| Layer | Location | Framework | Command |
 |------|------|------|----------|
-| 后端单元测试 | `backend/tests/unit/` | pytest | `cd backend && pytest tests/unit/` |
-| 后端契约测试 | `backend/tests/contracts/` | pytest | `cd backend && pytest tests/contracts/` |
-| 后端集成测试 | `backend/tests/integration/` | pytest | `cd backend && pytest tests/integration/` |
-| 后端安全/压力/健壮性 | `backend/tests/` 根目录 | pytest | `cd backend && pytest tests/test_*.py` |
-| 前端类型检查 + 测试 | `frontend-nextjs/` | tsc + vitest | `npm run typecheck && npm run test` |
-| Widget 类型检查 + 测试 | `widget/` | tsc + vitest | `npm run typecheck && npm run test` |
-| E2E 测试（根目录） | `tests/e2e/` | Playwright | `npm run test:e2e` |
+| Backend unit tests | `backend/tests/unit/` | pytest | `cd backend && pytest tests/unit/` |
+| Backend contract tests | `backend/tests/contracts/` | pytest | `cd backend && pytest tests/contracts/` |
+| Backend integration tests | `backend/tests/integration/` | pytest | `cd backend && pytest tests/integration/` |
+| Backend security/stress/robustness | `backend/tests/` root | pytest | `cd backend && pytest tests/test_*.py` |
+| Frontend typecheck + tests | `frontend-nextjs/` | tsc + vitest | `npm run typecheck && npm run test` |
+| Widget typecheck + tests | `widget/` | tsc + vitest | `npm run typecheck && npm run test` |
+| E2E tests (repo root) | `tests/e2e/` | Playwright | `npm run test:e2e` |
 
-## 后端测试特点
+## Backend Test Characteristics
 
-后端测试配置（`backend/pytest.ini` + `backend/tests/conftest.py`）：
+Backend test configuration (`backend/pytest.ini` + `backend/tests/conftest.py`):
 
-- 自动设置 `BASJOO_TEST_MODE=1`
-- 每次测试使用隔离的 SQLite 数据库（`backend/.pytest_dbs/`）
-- 对 Qdrant/Jina/LLM 集成进行 monkeypatch，大多数 API 测试无需外部服务
-- Redis/Qdrant 主机名在 Docker 容器名与 localhost 之间自动回退
-- 使用 `client` fixture 进行管理员认证请求，`public_client` fixture 进行未认证/公开路由测试
+- Automatically sets `BASJOO_TEST_MODE=1`
+- Each test uses an isolated SQLite database (`backend/.pytest_dbs/`)
+- Qdrant/Jina/LLM integrations are monkeypatched, so most API tests need no external services
+- Redis/Qdrant hostnames automatically fall back between Docker container names and localhost
+- Use the `client` fixture for authenticated admin requests and the `public_client` fixture for unauthenticated/public route tests
 
-## E2E 测试环境
+## E2E Test Environments
 
-E2E 测试提供两种运行模式：
+E2E tests support two run modes:
 
-| 模式 | 目标环境 | 入口地址 | 用途 |
-|------|----------|----------|------|
-| **smoke（默认）** | Docker dev 栈 | `http://localhost:3000` | 快速功能验证 |
-| **prod-like** | Docker 生产栈 | `http://localhost:80` (nginx) | 生产环境近似测试 |
+| Mode | Target environment | Entry URL | Purpose |
+|------|----------|----------|----------|
+| **smoke (default)** | Docker dev stack | `http://localhost:3000` | Quick functional verification |
+| **prod-like** | Docker production stack | `http://localhost:80` (nginx) | Production-like testing |
 
-### Smoke 测试（Dev 环境）
+### Smoke Tests (Dev Environment)
 
 ```bash
-# Playwright 会自动检查 :3000 是否就绪
+# Playwright automatically checks whether :3000 is ready
 npm run test:e2e
 ```
 
-### Prod-like 测试（生产近似环境）
+### Prod-like Tests (Production-like Environment)
 
-**重要：prod-like 测试需要手动启动生产 Docker 栈**
+**Important: prod-like tests require manually starting the production Docker stack**
 
 ```bash
-# 1. 启动生产环境（必须手动执行）
+# 1. Start the production environment (must be run manually)
 docker compose --profile prod up -d
 
-# 2. 确认 nginx 已在 localhost:80 运行
-curl http://localhost/health  # 应返回 200
+# 2. Confirm nginx is running on localhost:80
+curl http://localhost/health  # should return 200
 
-# 3. 运行 prod-like 测试
+# 3. Run the prod-like tests
 npm run test:e2e:prod
 ```
 
-**环境变量说明：**
-| 变量 | smoke | prod-like |
+**Environment variables:**
+| Variable | smoke | prod-like |
 |------|-------|-----------|
-| `E2E_ENV` | 不设置 | `prod` |
-| `API_BASE_URL` | `localhost:8000` | `localhost` (通过nginx) |
+| `E2E_ENV` | not set | `prod` |
+| `API_BASE_URL` | `localhost:8000` | `localhost` (via nginx) |
 | `BASE_URL` | `localhost:3000` | `localhost:80` |
 
-### 跨域 Widget 测试
+### Cross-origin Widget Tests
 
 ```bash
-# 需要配置宿主页 (allowed-host, blocked-host)
+# Requires configuring the host pages (allowed-host, blocked-host)
 npm run test:e2e:widget
-# 或等价于：
+# Or equivalently:
 HOST_ALLOWED_URL=http://allowed.local \
 HOST_BLOCKED_URL=http://blocked.local \
 npx playwright test --config=tests/e2e/playwright.config.ts --project=widget-cross-origin
 ```
 
-#### Widget 跨域测试配置
+#### Widget Cross-origin Test Configuration
 
-Widget 跨域测试需要从不同来源提供的两个宿主页。
+Widget cross-origin tests need two host pages served from different origins.
 
-**1. 配置 /etc/hosts**
+**1. Configure /etc/hosts**
 
-在 `/etc/hosts` 中添加以下条目：
+Add the following entries to `/etc/hosts`:
 
 ```
 127.0.0.1 allowed.local
 127.0.0.1 blocked.local
 ```
 
-**2. 启动宿主服务**
+**2. Start the host services**
 
 ```bash
 docker compose --profile dev up -d allowed-host blocked-host
 ```
 
-或手动提供宿主页：
+Or serve the host pages manually:
 
 ```bash
 cd tests/environments/host-pages/allowed-host
@@ -133,61 +133,61 @@ cd tests/environments/host-pages/blocked-host
 python3 -m http.server 8081
 ```
 
-**3. 设置环境变量**
+**3. Set the environment variables**
 
 ```bash
 export HOST_ALLOWED_URL=http://allowed.local:8080
 export HOST_BLOCKED_URL=http://blocked.local:8081
 ```
 
-**4. 运行测试**
+**4. Run the tests**
 
 ```bash
 npm run test:e2e:widget
 ```
 
-### 运行所有 E2E 测试
+### Run All E2E Tests
 
 ```bash
 npm run test:e2e:all
-# 或等价于：
+# Or equivalently:
 npx playwright test --config=tests/e2e/playwright.config.ts
 ```
 
-## E2E 测试目录结构
+## E2E Test Directory Structure
 
 ```
 tests/
 ├── e2e/
-│   ├── playwright.config.ts    # Playwright 配置
-│   ├── global.setup.ts         # 全局 setup（创建 admin、种子数据）
+│   ├── playwright.config.ts    # Playwright configuration
+│   ├── global.setup.ts         # Global setup (creates admin, seeds data)
 │   ├── fixtures/
-│   │   ├── admin.fixture.ts    # Admin 登录辅助
-│   │   └── widget.fixture.ts   # Widget 交互辅助
+│   │   ├── admin.fixture.ts    # Admin login helpers
+│   │   └── widget.fixture.ts   # Widget interaction helpers
 │   └── specs/
-│       ├── admin-auth.spec.ts           # 管理员认证流程
-│       ├── playground-streaming.spec.ts # Playground 自动保存 + 流式聊天
-│       ├── knowledge-indexing.spec.ts   # 知识库导入 -> 索引 -> 检索
-│       ├── sessions-takeover.spec.ts    # 会话中心 + 人工接管
-│       └── widget-cross-origin.spec.ts  # Widget 跨域嵌入
+│       ├── admin-auth.spec.ts           # Admin authentication flow
+│       ├── playground-streaming.spec.ts # Playground auto-save + streaming chat
+│       ├── knowledge-indexing.spec.ts   # Knowledge base import -> indexing -> retrieval
+│       ├── sessions-takeover.spec.ts    # Session center + human takeover
+│       └── widget-cross-origin.spec.ts  # Widget cross-origin embedding
 ├── environments/
 │   ├── host-pages/
-│   │   ├── allowed-host/       # 允许嵌入的宿主页
-│   │   └── blocked-host/       # 被阻止的宿主页
+│   │   ├── allowed-host/       # Host page where embedding is allowed
+│   │   └── blocked-host/       # Host page where embedding is blocked
 │   └── stubs/
-│       └── crawl-target/       # URL 抓取的测试站点
+│       └── crawl-target/       # Test site for URL crawling
 └── README.md
 ```
 
-## 环境变量
+## Environment Variables
 
-| 变量 | 说明 | 默认值 |
+| Variable | Description | Default |
 |------|------|--------|
 | `BASE_URL` | Admin dashboard URL | `http://localhost:3000` |
 | `API_BASE_URL` | Backend API URL | `http://localhost:8000` |
-| `ADMIN_EMAIL` | 测试 admin 邮箱 | `test@example.com` |
-| `ADMIN_PASSWORD` | 测试 admin 密码 | `testpassword123` |
-| `E2E_ENV` | 测试环境 (`dev`/`prod`) | `dev` |
-| `HOST_ALLOWED_URL` | 允许嵌入的宿主页 URL | - |
-| `HOST_BLOCKED_URL` | 被阻止的宿主页 URL | - |
-| `CRAWL_TARGET_URL` | URL 抓取测试站点 | `http://host.docker.internal:8081` |
+| `ADMIN_EMAIL` | Test admin email | `test@example.com` |
+| `ADMIN_PASSWORD` | Test admin password | `testpassword123` |
+| `E2E_ENV` | Test environment (`dev`/`prod`) | `dev` |
+| `HOST_ALLOWED_URL` | Host page URL where embedding is allowed | - |
+| `HOST_BLOCKED_URL` | Host page URL where embedding is blocked | - |
+| `CRAWL_TARGET_URL` | URL crawl test site | `http://host.docker.internal:8081` |
