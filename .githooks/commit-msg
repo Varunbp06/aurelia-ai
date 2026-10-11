@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+  echo "commit-msg: refusing to proceed because the message file is unavailable." >&2
+  exit 2
+fi
+message_file=$1
+pattern='^[[:space:]]*.*generated with codebuff.*$|^[[:space:]]*(co-authored-by|co-authored|signed-off-by|reviewed-by|generated-by):[[:space:]]*codebuff([[:space:]]|<|$).*|^[[:space:]]*.*noreply@codebuff\.com.*$'
+if grep -Eiq "$pattern" "$message_file"; then
+  echo "commit-msg: rejected a prohibited Codebuff-generated signature." >&2
+  echo "Remove the footer or co-author trailer and retry." >&2
+  exit 1
+fi
+exit 0
