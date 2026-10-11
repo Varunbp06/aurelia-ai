@@ -1,0 +1,44 @@
+name: Commit message policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reject-codebuff-trailers:
+    name: Reject prohibited commit signatures
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Test local commit-message guard
+        shell: bash
+        run: sh scripts/test-commit-message-policy.sh
+      - name: Check pushed or proposed commit messages
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          case "$EVENT_NAME" in
+            pull_request) range="${BASE_SHA}..${AFTER_SHA}" ;;
+            push)
+              if [[ "${BEFORE_SHA}" =~ ^0+$ ]]; then range="${AFTER_SHA}"; else range="${BEFORE_SHA}..${AFTER_SHA}"; fi
+              ;;
+            workflow_dispatch) range="${AFTER_SHA}" ;;
+            *) echo "Unsupported event: $EVENT_NAME" >&2; exit 2 ;;
+          esac
+          if ! messages=$(git log --format=%B "$range"); then echo "Unable to inspect commit messages for range: $range" >&2; exit 2; fi
+          pattern='^[[:space:]]*.*generated with codebuff.*$|^[[:space:]]*(co-authored-by|co-authored|signed-off-by|reviewed-by|generated-by):[[:space:]]*codebuff([[:space:]]|<|$).*|^[[:space:]]*.*noreply@codebuff\.com.*$'
+          if printf '%s\n' "$messages" | grep -Eiq "$pattern"; then echo "::error::A commit contains a prohibited Codebuff-generated signature or co-author trailer."; echo "Remove the promotional signature and retry."; exit 1; fi
+          echo "Commit-message policy passed."
