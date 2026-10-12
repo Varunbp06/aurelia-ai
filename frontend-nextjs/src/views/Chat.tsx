@@ -19,6 +19,9 @@ export default function Chat() {
   const { token } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -38,6 +41,8 @@ export default function Chat() {
   const fetchMessages = useCallback(async () => {
     if (!sessionId || !token) return
 
+    setIsLoadingMessages(true)
+    setLoadError(null)
     try {
       const response = await fetch(`/api/v1/admin/sessions/${sessionId}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -48,11 +53,15 @@ export default function Chat() {
         setMessages(data)
       } else {
         console.error('Failed to fetch messages:', response.statusText)
+        setLoadError(t('errors.loadFailed'))
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
+      setLoadError(t('errors.loadFailed'))
+    } finally {
+      setIsLoadingMessages(false)
     }
-  }, [sessionId, token])
+  }, [sessionId, token, t])
 
   const connectWebSocket = useCallback(() => {
     if (!token) return
@@ -141,6 +150,7 @@ export default function Chat() {
   const handleSend = async () => {
     if (!inputValue.trim()) return
 
+    setSendError(null)
     try {
       const response = await fetch('/api/v1/admin/sessions/send', {
         method: 'POST',
@@ -156,7 +166,7 @@ export default function Chat() {
 
       if (!response.ok) {
         console.error('Failed to send message:', response.statusText)
-        alert(t('errors.sendFailed'))
+        setSendError(t('errors.sendFailed'))
         return
       }
 
@@ -164,7 +174,7 @@ export default function Chat() {
       await fetchMessages()
     } catch (error) {
       console.error('Error sending message:', error)
-      alert(t('errors.sendFailed'))
+      setSendError(t('errors.sendFailed'))
     }
   }
 
@@ -176,20 +186,60 @@ export default function Chat() {
       </header>
 
       <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
-        {messages.map((msg) => (
+        {loadError && (
           <div
-            key={msg.id}
+            role="alert"
             style={{
-              padding: '10px',
-              margin: '10px 0',
-              backgroundColor: msg.role === 'user' ? '#f0f0f0' : '#e3f2fd',
+              padding: '12px',
+              marginBottom: '12px',
               borderRadius: '8px',
+              background: '#fdecea',
+              color: '#b3261e',
+              border: '1px solid #e5b5b1',
             }}
           >
-            <strong>{msg.role === 'user' ? t('roles.visitor') : t('roles.agent')}: </strong>
-            {msg.content}
+            {loadError}
           </div>
-        ))}
+        )}
+        {sendError && (
+          <div
+            role="alert"
+            style={{
+              padding: '12px',
+              marginBottom: '12px',
+              borderRadius: '8px',
+              background: '#fdecea',
+              color: '#b3261e',
+              border: '1px solid #e5b5b1',
+            }}
+          >
+            {sendError}
+          </div>
+        )}
+        {isLoadingMessages ? (
+          <div style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>
+            {t('status.loading')}
+          </div>
+        ) : messages.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+            {t('labels.noMessages')}
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              style={{
+                padding: '10px',
+                margin: '10px 0',
+                backgroundColor: msg.role === 'user' ? '#f0f0f0' : '#e3f2fd',
+                borderRadius: '8px',
+              }}
+            >
+              <strong>{msg.role === 'user' ? t('roles.visitor') : t('roles.agent')}: </strong>
+              {msg.content}
+            </div>
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -198,8 +248,9 @@ export default function Chat() {
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          onKeyDown={(e) => e.key === 'Enter' && !e.nativeEvent.isComposing && handleSend()}
           placeholder={t('placeholders.enterMessage')}
+          aria-label={t('placeholders.enterMessage')}
           style={{ flex: 1, padding: '10px' }}
         />
         <button onClick={handleSend}>{t('buttons.send')}</button>

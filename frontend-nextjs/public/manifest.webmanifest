@@ -1,0 +1,17 @@
+{
+  "name": "Aurelia AI",
+  "short_name": "Aurelia AI",
+  "description": "Aurelia AI — AI Agent Management Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1b1b25",
+  "theme_color": "#1b1b25",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
