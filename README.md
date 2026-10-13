@@ -6,6 +6,8 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green.svg)](https://fastapi.tiangolo.com/)
+[![Live](https://img.shields.io/badge/Live-aureliaai.vercel.app-22c55e?style=flat-square)](https://aureliaai.vercel.app)
+[![Mirror](https://img.shields.io/badge/Mirror-aurelia--ai--topaz.vercel.app-0ea5e9?style=flat-square)](https://aurelia-ai-topaz.vercel.app)
 
 ---
 
