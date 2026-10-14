@@ -290,7 +290,10 @@ aurelia-ai/
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-Copyright (c) 2026 haoyiyin
+This project is a derivative work of [Basjoo](https://github.com/haoyiyin/basjoo), which is licensed under the MIT License.
+
+- Upstream copyright notice: Copyright (c) 2026 haoyiyin
+- Modifications and additional work: Copyright (c) 2026 Varun B P
 
 ---
 
