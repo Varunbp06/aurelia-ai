@@ -182,4 +182,58 @@ describe("Register bootstrap flow (real AuthProvider)", () => {
 		);
 		expect(loginCalls).toHaveLength(0);
 	});
+
+	it("enters disclosed demo mode when registration cannot reach the backend", async () => {
+		global.fetch = vi.fn().mockImplementation((url: string) => {
+			if (url.includes("/api/admin/registration-settings")) {
+				return Promise.resolve({
+					ok: true,
+					json: async () => ({ bootstrap_required: true }),
+				});
+			}
+			return Promise.resolve(
+				new Response("Internal Server Error", {
+					status: 500,
+					headers: { "content-type": "text/plain; charset=utf-8" },
+				}),
+			);
+		}) as any;
+
+		const router = createMemoryRouter(
+			[
+				{ path: "/register", element: <Register /> },
+				{ path: "/", element: <div>Home page</div> },
+			],
+			{ initialEntries: ["/register"] },
+		);
+
+		render(
+			<AuthProvider>
+				<RouterProvider router={router} />
+			</AuthProvider>,
+		);
+
+		await screen.findByText("initialSetup.name");
+		fireEvent.change(screen.getByPlaceholderText("initialSetup.namePlaceholder"), {
+			target: { value: "Demo User" },
+		});
+		fireEvent.change(screen.getByPlaceholderText("initialSetup.emailPlaceholder"), {
+			target: { value: "demo@example.invalid" },
+		});
+		fireEvent.change(screen.getByPlaceholderText("initialSetup.passwordPlaceholder"), {
+			target: { value: "placeholder-only" },
+		});
+		fireEvent.change(
+			screen.getByPlaceholderText("initialSetup.confirmPasswordPlaceholder"),
+			{ target: { value: "placeholder-only" } },
+		);
+		fireEvent.click(screen.getByRole("button", { name: "initialSetup.registerButton" }));
+
+		await waitFor(() => {
+			expect(router.state.location.pathname).toBe("/");
+		});
+		expect(localStorage.getItem("token")).toBe("demo-session");
+		expect(localStorage.getItem("demo_mode")).toBe("1");
+		expect(screen.getByText("Home page")).toBeInTheDocument();
+	});
 });

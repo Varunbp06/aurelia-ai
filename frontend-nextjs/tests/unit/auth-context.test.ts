@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { isBackendUnavailableResponse } from '../../src/context/AuthContext';
 
 // Polyfill atob/btoa and window for Node.js test environment
 if (typeof globalThis.atob === 'undefined') {
@@ -133,5 +134,31 @@ describe('Token Expiry Detection', () => {
 
     // exp * 1000 <= Date.now() means "expired at or before now"
     expect(isTokenExpired(token)).toBe(true);
+  });
+});
+
+describe('Backend availability detection', () => {
+  it('recognizes the plain proxy error returned when the backend is offline', async () => {
+    const response = new Response('Internal Server Error', {
+      status: 500,
+      headers: { 'content-type': 'text/plain; charset=utf-8' },
+    });
+
+    await expect(isBackendUnavailableResponse(response)).resolves.toBe(true);
+  });
+
+  it('recognizes the proxy response when Next omits content-type', async () => {
+    const response = new Response('Internal Server Error', { status: 500 });
+
+    await expect(isBackendUnavailableResponse(response)).resolves.toBe(true);
+  });
+
+  it('does not turn a JSON backend failure into a demo session', async () => {
+    const response = new Response(JSON.stringify({ detail: 'Database unavailable' }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' },
+    });
+
+    await expect(isBackendUnavailableResponse(response)).resolves.toBe(false);
   });
 });

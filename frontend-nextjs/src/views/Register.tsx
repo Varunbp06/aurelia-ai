@@ -140,6 +140,7 @@ export const Register = () => {
 				>
 					{error && (
 						<div
+							role="alert"
 							style={{
 								background: "var(--color-error-bg)",
 								color: "var(--color-error)",
@@ -172,6 +173,7 @@ export const Register = () => {
 					<form onSubmit={handleRegister} suppressHydrationWarning>
 						<div style={{ marginBottom: "var(--space-5)" }}>
 							<label
+								htmlFor="register-name"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -184,6 +186,7 @@ export const Register = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="register-name"
 									type="text"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
@@ -217,6 +220,7 @@ export const Register = () => {
 
 						<div style={{ marginBottom: "var(--space-5)" }}>
 							<label
+								htmlFor="register-email"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -229,6 +233,7 @@ export const Register = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="register-email"
 									type="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
@@ -262,6 +267,7 @@ export const Register = () => {
 
 						<div style={{ marginBottom: "var(--space-5)" }}>
 							<label
+								htmlFor="register-password"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -274,6 +280,7 @@ export const Register = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="register-password"
 									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
@@ -309,6 +316,7 @@ export const Register = () => {
 
 						<div style={{ marginBottom: "var(--space-6)" }}>
 							<label
+								htmlFor="register-confirm-password"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -321,6 +329,7 @@ export const Register = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="register-confirm-password"
 									type="password"
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
@@ -385,6 +394,26 @@ export const Register = () => {
 							)}
 						</button>
 					</form>
+
+					<div
+						role="status"
+						style={{
+							marginTop: "var(--space-5)",
+							padding: "var(--space-4)",
+							borderRadius: "var(--radius-md)",
+							background: "hsla(210deg, 80%, 60%, 0.08)",
+							border: "1px solid hsla(210deg, 80%, 60%, 0.25)",
+							fontSize: "var(--text-sm)",
+							lineHeight: 1.5,
+							color: "var(--color-text-secondary)",
+						}}
+					>
+						<strong style={{ color: "var(--color-text-primary)" }}>
+							Demo preview.
+						</strong>{" "}
+						If the server is offline, sign-up opens a frontend-only demo session.
+						No account is created and no password is stored.
+					</div>
 				</div>
 
 				<p

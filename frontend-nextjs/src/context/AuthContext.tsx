@@ -81,6 +81,31 @@ function isTokenExpired(token: string): boolean {
 	}
 	return payload.exp * 1000 <= Date.now();
 }
+
+/**
+ * Next.js rewrites return a plain 500 response when the configured backend
+ * cannot be reached. Treat only that proxy-shaped response (or gateway
+ * statuses) as demo-mode availability; real API errors must still be shown.
+ */
+export async function isBackendUnavailableResponse(response: Response): Promise<boolean> {
+	if ([502, 503, 504].includes(response.status)) {
+		return true;
+	}
+	if (response.status !== 500) {
+		return false;
+	}
+
+	const contentType = (response.headers.get("content-type") || "").toLowerCase();
+	// Next's failed rewrite currently omits content-type; accept that exact
+	// body while still rejecting JSON errors returned by the backend.
+	if (contentType && !contentType.includes("text/plain")) {
+		return false;
+	}
+
+	const body = await response.clone().text().catch(() => "");
+	return body.trim().toLowerCase() === "internal server error";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const { t } = useTranslation("auth");
 	const [admin, setAdmin] = useState<Admin | null>(null);
@@ -140,6 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			}
 		}
 		// No saved session — user must log in via the login page.
+		setIsDemoMode(false);
+		localStorage.removeItem(DEMO_MODE_KEY);
 		setIsLoading(false);
 	}, [persistSession]);
 
@@ -245,6 +272,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 
 		if (!response.ok) {
+			if (await isBackendUnavailableResponse(response)) {
+				enterDemoSession(email);
+				return;
+			}
 			const message = await parseErrorResponse(response);
 			throw new Error(message || t("errors.loginFailed"));
 		}
@@ -275,13 +306,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, [persistSession]);
 
 	const register = async (email: string, password: string, name: string) => {
-		const response = await fetch(`${API_BASE_URL}/api/admin/register`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, password, name }),
-		});
+		let response: Response;
+		try {
+			response = await fetch(`${API_BASE_URL}/api/admin/register`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email, password, name }),
+			});
+		} catch {
+			// No account is created offline. Enter the same disclosed demo mode as
+			// login so the first-run path remains usable without a fake backend.
+			enterDemoSession(email);
+			return;
+		}
 
 		if (!response.ok) {
+			if (await isBackendUnavailableResponse(response)) {
+				enterDemoSession(email);
+				return;
+			}
 			const message = await parseErrorResponse(response);
 			throw new Error(message || "注册失败");
 		}

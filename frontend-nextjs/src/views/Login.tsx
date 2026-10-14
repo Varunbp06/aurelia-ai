@@ -128,6 +128,7 @@ export const Login = () => {
 				>
 					{error && (
 						<div
+							role="alert"
 							style={{
 								background: "var(--color-error-bg)",
 								color: "var(--color-error)",
@@ -160,6 +161,7 @@ export const Login = () => {
 					<form onSubmit={handleLogin} suppressHydrationWarning>
 						<div style={{ marginBottom: "var(--space-5)" }}>
 							<label
+								htmlFor="login-email"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -172,6 +174,7 @@ export const Login = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="login-email"
 									type="email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
@@ -207,6 +210,7 @@ export const Login = () => {
 
 						<div style={{ marginBottom: "var(--space-6)" }}>
 							<label
+								htmlFor="login-password"
 								style={{
 									display: "block",
 									marginBottom: "var(--space-2)",
@@ -219,6 +223,7 @@ export const Login = () => {
 							</label>
 							<div suppressHydrationWarning style={{ position: "relative" }}>
 								<input
+									id="login-password"
 									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
