@@ -140,6 +140,13 @@ describe("FileUploadManagement file status polling", () => {
 			expect(mockedApi.listFiles).toHaveBeenCalledWith("agt_test");
 		});
 
+		// The polling interval is installed by an effect keyed on the `files`
+		// state, so it only exists after the first response has been committed
+		// to the DOM. Wait for that commit before advancing fake time.
+		await waitFor(() => {
+			expect(screen.getByText("files.processing")).toBeInTheDocument();
+		});
+
 		// Clear mocks to track only polling calls
 		const initialCallCount = mockedApi.listFiles.mock.calls.length;
 
@@ -165,6 +172,12 @@ describe("FileUploadManagement file status polling", () => {
 		// Wait for initial load
 		await waitFor(() => {
 			expect(mockedApi.listFiles).toHaveBeenCalledWith("agt_test");
+		});
+
+		// Wait for the processing status to be committed so the polling interval
+		// has been installed before advancing fake time.
+		await waitFor(() => {
+			expect(screen.getByText("files.processing")).toBeInTheDocument();
 		});
 
 		// Wait for a few polling cycles with processing files
@@ -208,6 +221,12 @@ describe("FileUploadManagement file status polling", () => {
 			expect(mockedApi.listFiles).toHaveBeenCalledWith("agt_test");
 		});
 
+		// Wait for the processing status to be committed so the polling interval
+		// has been installed before advancing fake time.
+		await waitFor(() => {
+			expect(screen.getByText("files.processing")).toBeInTheDocument();
+		});
+
 		// Clear mock to track subsequent calls
 		const initialCount = mockedApi.listFiles.mock.calls.length;
 
@@ -237,6 +256,12 @@ describe("FileUploadManagement file status polling", () => {
 			expect(mockedApi.listFiles.mock.calls.length).toBeGreaterThanOrEqual(1);
 		});
 
+		// Wait for the processing status to be committed so the polling interval
+		// has been installed before advancing fake time.
+		await waitFor(() => {
+			expect(screen.getByText("files.processing")).toBeInTheDocument();
+		});
+
 		// Get count before unmount
 		const callCountBeforeUnmount = mockedApi.listFiles.mock.calls.length;
 
@@ -261,6 +286,11 @@ describe("FileUploadManagement file status polling", () => {
 		// Wait for initial load
 		await waitFor(() => {
 			expect(mockedApi.listFiles).toHaveBeenCalledWith("agt_test");
+		});
+		// Wait for React to commit the pending status so the polling effect has
+		// installed its interval before advancing fake time.
+		await waitFor(() => {
+			expect(screen.getByText("files.pending")).toBeInTheDocument();
 		});
 
 		// Clear mock
@@ -287,6 +317,12 @@ describe("FileUploadManagement file status polling", () => {
 		// Wait for initial load
 		await waitFor(() => {
 			expect(mockedApi.listFiles.mock.calls.length).toBeGreaterThanOrEqual(1);
+		});
+
+		// Wait for the ready status to be committed so the polling effect has
+		// run (and correctly decided not to start an interval).
+		await waitFor(() => {
+			expect(screen.getByText("files.ready")).toBeInTheDocument();
 		});
 
 		// Get count after initial load
