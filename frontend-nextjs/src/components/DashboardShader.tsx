@@ -154,10 +154,13 @@ export default function DashboardShader() {
 			resizeObserver.observe(canvas);
 		}
 
-		let rafId = 0;
-		let running = true;
+		let rafId: number | null = null;
+		let pageVisible = !document.hidden;
+		let inViewport = true;
+		let running = false;
 
 		const render = (t: number) => {
+			rafId = null;
 			if (!running) return;
 			if (typeof ResizeObserver === "undefined") syncSize();
 			gl.viewport(0, 0, canvas.width, canvas.height);
@@ -166,24 +169,40 @@ export default function DashboardShader() {
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 			rafId = requestAnimationFrame(render);
 		};
+		const syncPlayback = () => {
+			const shouldRun = pageVisible && inViewport;
+			if (shouldRun === running) return;
 
-		const handleVisibility = () => {
-			if (document.hidden) {
-				running = false;
-				cancelAnimationFrame(rafId);
-			} else if (!running) {
-				running = true;
+			running = shouldRun;
+			if (running) {
 				rafId = requestAnimationFrame(render);
+			} else if (rafId !== null) {
+				cancelAnimationFrame(rafId);
+				rafId = null;
 			}
 		};
-		document.addEventListener("visibilitychange", handleVisibility);
 
-		rafId = requestAnimationFrame(render);
+		let intersectionObserver: IntersectionObserver | null = null;
+		if (typeof IntersectionObserver !== "undefined") {
+			intersectionObserver = new IntersectionObserver((entries) => {
+				inViewport = entries.some((entry) => entry.isIntersecting);
+				syncPlayback();
+			});
+			intersectionObserver.observe(canvas);
+		}
+
+		const handleVisibility = () => {
+			pageVisible = !document.hidden;
+			syncPlayback();
+		};
+		document.addEventListener("visibilitychange", handleVisibility);
+		syncPlayback();
 
 		return () => {
 			running = false;
-			cancelAnimationFrame(rafId);
+			if (rafId !== null) cancelAnimationFrame(rafId);
 			document.removeEventListener("visibilitychange", handleVisibility);
+			intersectionObserver?.disconnect();
 			resizeObserver?.disconnect();
 			media.removeEventListener("change", handleMediaChange);
 			gl.getExtension("WEBGL_lose_context")?.loseContext();
@@ -205,7 +224,7 @@ export default function DashboardShader() {
 			className={`${enabled ? "shader-band" : "shader-static-fallback"}`}
 			aria-hidden="true"
 		>
-			{enabled ? <canvas ref={canvasRef} /> : null}
+			{!isMobile && !reduced ? <canvas ref={canvasRef} /> : null}
 			<div className="shader-band-fade" />
 		</div>
 	);
