@@ -41,6 +41,20 @@ from database import configure_database, init_db
 
 @pytest.fixture(autouse=True)
 def mock_llm_service(monkeypatch, request):
+    # Clear rate limit state between tests
+    try:
+        from api.endpoints import auth as auth_endpoint
+        auth_endpoint._login_attempt_history.clear()
+    except Exception:
+        pass
+    try:
+        from middleware import rate_limit as rl
+        if hasattr(rl, 'RateLimitMiddleware'):
+            rl.RateLimitMiddleware.request_history = {}
+            rl.RateLimitMiddleware.burst_counters = {}
+    except Exception:
+        pass
+
     integration_fixtures = {"client", "public_client", "default_agent_id"}
     if not integration_fixtures.intersection(set(request.fixturenames)):
         return
